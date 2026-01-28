@@ -1,16 +1,16 @@
 const Game = {
     state: {
         currentScreen: 'screen-start',
-        players: [], // { id: 1, faction: 'castle' }
+        players: [], 
         currentPlayerIndex: 0,
         round: 1,
-        selectedTheme: null, // 'good', 'evil', etc.
+        selectedTheme: null,
         playerCount: 3
     },
 
     audio: {
         bg: new Audio(),
-        bgNext: new Audio(), // For crossfading
+        bgNext: new Audio(),
         sfx: new Audio(),
         currentBgUrl: null,
         isFading: false
@@ -19,15 +19,18 @@ const Game = {
     // --- Audio Engine ---
 
     playBg(url, fade = true) {
-        if (this.audio.currentBgUrl === url) return;
+        // Ensure path correctness if passed without folder
+        const fullUrl = url.includes('/') ? url : `assets/${url}`;
+
+        if (this.audio.currentBgUrl === fullUrl) return;
         
         const next = this.audio.bg.paused ? this.audio.bg : this.audio.bgNext;
         const current = next === this.audio.bg ? this.audio.bgNext : this.audio.bg;
 
-        next.src = url;
+        next.src = fullUrl;
         next.loop = true;
         next.volume = 0;
-        this.audio.currentBgUrl = url;
+        this.audio.currentBgUrl = fullUrl;
 
         if (fade) {
             next.play().catch(e => console.log("Audio play failed", e));
@@ -56,7 +59,6 @@ const Game = {
     },
 
     stopBg() {
-        // Fade out quickly then stop
         const current = !this.audio.bg.paused ? this.audio.bg : this.audio.bgNext;
         let vol = current.volume;
         const interval = setInterval(() => {
@@ -70,11 +72,8 @@ const Game = {
         }, 50);
     },
 
-    playSfx(url, onComplete = null) {
-        // SFX interrupts music immediately if logic dictates, 
-        // but physically we just play on the SFX channel.
-        // Some game logic requires stopping BG before calling this.
-        this.audio.sfx.src = url;
+    playSfx(filename, onComplete = null) {
+        this.audio.sfx.src = `assets/${filename}`;
         this.audio.sfx.loop = false;
         this.audio.sfx.volume = 1;
         this.audio.sfx.onended = onComplete;
@@ -84,14 +83,14 @@ const Game = {
     // --- Game Logic ---
 
     init() {
-        this.playBg('main.MP3');
+        this.playBg('assets/main.MP3'); // Note: main.MP3 in your list
         this.showScreen('screen-start');
     },
 
     selectTheme(theme) {
         this.state.selectedTheme = theme;
-        // Fade to theme music
-        this.playBg(`${theme}.mp3`);
+        // Theme files are lowercase .mp3 in list
+        this.playBg(`assets/${theme}.mp3`);
         this.showScreen('screen-players');
     },
 
@@ -103,14 +102,12 @@ const Game = {
 
     startFactionSelection(playerIndex) {
         if (playerIndex >= this.state.playerCount) {
-            // All players selected
             this.startGame();
             return;
         }
         document.getElementById('faction-player-title').innerText = `Player ${playerIndex + 1}`;
         this.showScreen('screen-factions');
         
-        // Setup click handlers for factions to pass current index
         const buttons = document.querySelectorAll('.faction-btn');
         buttons.forEach(btn => {
             btn.onclick = () => {
@@ -124,7 +121,7 @@ const Game = {
     startGame() {
         this.state.round = 1;
         this.state.currentPlayerIndex = 0;
-        this.startTurn(false); // False = don't play new day sfx on very first turn
+        this.startTurn(false); 
     },
 
     startTurn(playSfx = true) {
@@ -136,30 +133,28 @@ const Game = {
         if (!playSfx) {
             this.playBg(factionMusic);
         } else {
-            // Logic handled in endTurn transition usually, but ensures music is correct
             this.playBg(factionMusic);
         }
     },
 
     getFactionMusic(faction) {
-        // Map faction names to exact files (handling case sensitivity from file list)
+        // Specific mapping based on your file list
         const map = {
-            'castle': 'castle.mp3',
-            'rampart': 'rampart.MP3', // Note cap
-            'tower': 'tower.mp3',
-            'inferno': 'inferno.mp3',
-            'dungeon': 'dungeon.MP3', // Note cap
-            'necropolis': 'necropolis.mp3',
-            'fortress': 'fortress.mp3',
-            'stronghold': 'stronghold.mp3',
-            'conflux': 'conflux.mp3',
-            'cove': 'cove.mp3'
+            'castle': 'assets/castle.mp3',
+            'rampart': 'assets/rampart.MP3', // Uppercase
+            'tower': 'assets/tower.mp3',
+            'inferno': 'assets/inferno.mp3',
+            'dungeon': 'assets/dungeon.MP3', // Uppercase
+            'necropolis': 'assets/necropolis.mp3',
+            'fortress': 'assets/fortress.mp3',
+            'stronghold': 'assets/stronghold.mp3',
+            'conflux': 'assets/conflux.mp3',
+            'cove': 'assets/cove.mp3'
         };
         return map[faction];
     },
 
     endTurn() {
-        // Determine next state
         let nextIndex = this.state.currentPlayerIndex + 1;
         let nextRound = this.state.round;
         let sfxToPlay = 'newday.mp3';
@@ -175,12 +170,11 @@ const Game = {
             }
         }
 
-        // Stop BG, Play SFX, Then Start Next BG
         this.stopBg();
         this.playSfx(sfxToPlay, () => {
             this.state.currentPlayerIndex = nextIndex;
             this.state.round = nextRound;
-            this.startTurn(true); // Will fade in new music
+            this.startTurn(true); 
         });
     },
 
@@ -188,7 +182,6 @@ const Game = {
         this.audio.bg.pause();
         this.audio.bgNext.pause();
         this.playSfx('chest.mp3', () => {
-             // Resume BG
              const current = this.audio.currentBgUrl ? (this.audio.bg.src.includes(this.audio.currentBgUrl) ? this.audio.bg : this.audio.bgNext) : null;
              if(current) current.play();
         });
@@ -198,36 +191,31 @@ const Game = {
         this.audio.bg.pause();
         this.audio.bgNext.pause();
         this.playSfx('treasure.mp3', () => {
-             // Resume BG
              const current = this.audio.currentBgUrl ? (this.audio.bg.src.includes(this.audio.currentBgUrl) ? this.audio.bg : this.audio.bgNext) : null;
              if(current) current.play();
         });
     },
 
     startCombat() {
-        // 1. Stop Faction Music
         this.stopBg();
         
-        // 2. Pick Random Battle Intro (1-8)
+        // Random Battle Intro (1-8), all lowercase .mp3
         const introNum = Math.floor(Math.random() * 8) + 1;
         const introFile = `battle${introNum}.mp3`;
 
-        // 3. Pick Random Combat Loop (1-4)
+        // Random Combat Loop (1-4), all Uppercase .MP3
         const combatNum = Math.floor(Math.random() * 4) + 1;
-        // Handle MP3 case sensitivity in file list
-        // combat1-4.MP3
-        const combatFile = `combat${combatNum}.MP3`;
+        const combatFile = `assets/combat${combatNum}.MP3`;
 
         this.showScreen('screen-combat');
 
         this.playSfx(introFile, () => {
-            this.playBg(combatFile, false); // No fade, hard start
+            this.playBg(combatFile, false); 
         });
     },
 
     combatVictory() {
         this.stopBg();
-        // Play win_battle.mp3 (mapped to Victory) then experience.mp3
         this.playSfx('win_battle.mp3', () => {
             this.playSfx('experience.mp3', () => {
                 this.returnToOverworld();
@@ -250,18 +238,17 @@ const Game = {
     },
 
     returnToOverworld() {
-        this.startTurn(true); // Resumes/Fades in faction music
+        this.startTurn(true); 
     },
 
     showRules(fromScreen) {
         this.state.previousScreen = fromScreen;
         this.state.previousMusic = this.audio.currentBgUrl;
         
-        // Pick random AI track
         const aiNum = Math.floor(Math.random() * 3) + 1;
-        // File list: ai1.mp3, ai2.MP3, ai3.MP3
-        let aiFile = `ai${aiNum}.mp3`;
-        if (aiNum > 1) aiFile = `ai${aiNum}.MP3`;
+        // Logic for Mixed Case AI files: ai1.mp3, ai2.MP3, ai3.MP3
+        let aiFile = `assets/ai${aiNum}.mp3`;
+        if (aiNum > 1) aiFile = `assets/ai${aiNum}.MP3`;
 
         this.playBg(aiFile);
         this.showScreen('screen-rules');
@@ -276,26 +263,23 @@ const Game = {
 
     winGame() {
         this.stopBg();
-        // Play win_game.mp3 on loop
-        this.audio.bg.src = 'win_game.mp3';
+        // win_game.mp3
+        this.audio.bg.src = 'assets/win_game.mp3';
         this.audio.bg.loop = true;
         this.audio.bg.volume = 1;
         this.audio.bg.play();
-        this.audio.currentBgUrl = 'win_game.mp3';
+        this.audio.currentBgUrl = 'assets/win_game.mp3';
 
-        // Update Win Icon
         const winBtn = document.getElementById('win-theme-btn');
-        // prompt says show the theme selected at start (good/evil/etc)
-        winBtn.style.backgroundImage = `url('${this.state.selectedTheme}.avif')`;
+        winBtn.style.backgroundImage = `url('assets/${this.state.selectedTheme}.avif')`;
 
         this.showScreen('screen-win');
     },
 
     resetGame() {
-        location.reload(); // Simplest way to reset everything cleanly
+        location.reload(); 
     },
 
-    // --- DOM Helper ---
     showScreen(id) {
         document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
         document.getElementById(id).style.display = 'flex';
@@ -303,5 +287,4 @@ const Game = {
     }
 };
 
-// Initial Setup attached to window for HTML access
 window.Game = Game;

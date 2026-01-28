@@ -26,7 +26,7 @@
     }
 
     .screen {
-      display: none; /* Toggled by JS */
+      display: none; 
       flex-direction: column;
       align-items: center;
       justify-content: center;
@@ -37,7 +37,6 @@
 
     h1, h2 { text-shadow: 2px 2px 4px #000; margin: 10px; }
 
-    /* Button Grids */
     .grid-2x2 {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -50,7 +49,6 @@
       gap: 15px;
     }
 
-    /* Faction layout: 3, 3, 2, 2 */
     .faction-container {
         display: flex;
         flex-direction: column;
@@ -63,7 +61,6 @@
         justify-content: center;
     }
 
-    /* UI Components */
     .btn {
       width: var(--btn-size);
       height: var(--btn-size);
@@ -83,7 +80,6 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    /* Player Count Styles */
     .counter-box {
         display: flex;
         flex-direction: column;
@@ -94,36 +90,33 @@
     .control-row { display: flex; gap: 20px; }
     .ctrl-btn { font-size: 2rem; width: 60px; height: 60px; border-radius: 10px; background: #444; border: none; color: white; }
 
-    /* Specific Button Images */
-    .btn-good { background-image: url('good.avif'); }
-    .btn-evil { background-image: url('evil.avif'); }
-    .btn-neutral { background-image: url('neutral.avif'); }
-    .btn-secret { background-image: url('secret.avif'); }
+    /* Updated CSS Paths to assets/ */
+    .btn-good { background-image: url('assets/good.avif'); }
+    .btn-evil { background-image: url('assets/evil.avif'); }
+    .btn-neutral { background-image: url('assets/neutral.avif'); }
+    .btn-secret { background-image: url('assets/secret.avif'); }
 
-    /* Factions */
-    .btn-castle { background-image: url('castle.avif'); }
-    .btn-rampart { background-image: url('rampart.avif'); }
-    .btn-tower { background-image: url('tower.avif'); }
-    .btn-inferno { background-image: url('inferno.avif'); }
-    .btn-dungeon { background-image: url('dungeon.avif'); }
-    .btn-necropolis { background-image: url('necropolis.avif'); }
-    .btn-fortress { background-image: url('fortress.avif'); }
-    .btn-stronghold { background-image: url('stronghold.avif'); }
-    .btn-conflux { background-image: url('conflux.avif'); }
-    .btn-cove { background-image: url('cove.avif'); }
+    .btn-castle { background-image: url('assets/castle.avif'); }
+    .btn-rampart { background-image: url('assets/rampart.avif'); }
+    .btn-tower { background-image: url('assets/tower.avif'); }
+    .btn-inferno { background-image: url('assets/inferno.avif'); }
+    .btn-dungeon { background-image: url('assets/dungeon.avif'); }
+    .btn-necropolis { background-image: url('assets/necropolis.avif'); }
+    .btn-fortress { background-image: url('assets/fortress.avif'); }
+    .btn-stronghold { background-image: url('assets/stronghold.avif'); }
+    .btn-conflux { background-image: url('assets/conflux.avif'); }
+    .btn-cove { background-image: url('assets/cove.avif'); }
 
-    /* Overworld */
-    .btn-start { background-image: url('start.avif'); }
-    .btn-resource { background-image: url('resource.avif'); }
-    .btn-artifact { background-image: url('artifact.avif'); }
-    .btn-endturn { background-image: url('end_turn.avif'); }
-    .btn-rules { background-image: url('rules.avif'); }
-    .btn-wingame { background-image: url('win_game.avif'); }
+    .btn-start { background-image: url('assets/start.avif'); }
+    .btn-resource { background-image: url('assets/resource.avif'); }
+    .btn-artifact { background-image: url('assets/artifact.avif'); }
+    .btn-endturn { background-image: url('assets/end_turn.avif'); }
+    .btn-rules { background-image: url('assets/rules.avif'); }
+    .btn-wingame { background-image: url('assets/win_game.avif'); }
 
-    /* Combat */
-    .btn-victory { background-image: url('victory.avif'); }
-    .btn-retreat { background-image: url('retreat.avif'); }
-    .btn-lose { background-image: url('lose.avif'); }
+    .btn-victory { background-image: url('assets/victory.avif'); }
+    .btn-retreat { background-image: url('assets/retreat.avif'); }
+    .btn-lose { background-image: url('assets/lose.avif'); }
     
     .btn-confirm { 
         background-color: #28a745; 
@@ -131,7 +124,6 @@
         display: flex; align-items: center; justify-content: center;
     }
 
-    /* Responsive adjustments */
     @media (max-width: 350px) {
         :root { --btn-size: 100px; }
     }
@@ -146,7 +138,6 @@
 
   <pwa-update swpath="sw.js"></pwa-update>
 
-  <!-- SCREEN 1: Start / Theme Selection -->
   <div id="screen-start" class="screen">
     <h1>Select Theme</h1>
     <div class="grid-2x2">
@@ -157,7 +148,6 @@
     </div>
   </div>
 
-  <!-- SCREEN 2: Player Count -->
   <div id="screen-players" class="screen">
     <h1>Player Count</h1>
     <div class="counter-box">
@@ -170,28 +160,23 @@
     </div>
   </div>
 
-  <!-- SCREEN 3: Faction Selection -->
   <div id="screen-factions" class="screen">
     <h2 id="faction-player-title">Player 1</h2>
     <div class="faction-container">
-        <!-- Row 1: 3 -->
         <div class="faction-row">
             <div class="btn btn-castle faction-btn" data-faction="castle"></div>
             <div class="btn btn-rampart faction-btn" data-faction="rampart"></div>
             <div class="btn btn-tower faction-btn" data-faction="tower"></div>
         </div>
-        <!-- Row 2: 3 -->
         <div class="faction-row">
             <div class="btn btn-inferno faction-btn" data-faction="inferno"></div>
             <div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div>
             <div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div>
         </div>
-        <!-- Row 3: 2 -->
         <div class="faction-row">
             <div class="btn btn-fortress faction-btn" data-faction="fortress"></div>
             <div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div>
         </div>
-        <!-- Row 4: 2 -->
         <div class="faction-row">
             <div class="btn btn-conflux faction-btn" data-faction="conflux"></div>
             <div class="btn btn-cove faction-btn" data-faction="cove"></div>
@@ -199,7 +184,6 @@
     </div>
   </div>
 
-  <!-- SCREEN 4: Overworld -->
   <div id="screen-overworld" class="screen">
     <div class="grid-overworld">
         <div class="btn btn-start" onclick="Game.startCombat()"></div>
@@ -211,7 +195,6 @@
     </div>
   </div>
 
-  <!-- SCREEN 5: Combat -->
   <div id="screen-combat" class="screen">
     <div class="grid-2x2">
         <div class="btn btn-victory" onclick="Game.combatVictory()"></div>
@@ -221,22 +204,18 @@
     </div>
   </div>
 
-  <!-- SCREEN 6: Rules -->
   <div id="screen-rules" class="screen">
       <h1>Consulting Rules</h1>
       <div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div>
   </div>
 
-  <!-- SCREEN 7: Win -->
   <div id="screen-win" class="screen">
       <h1>Victory!</h1>
-      <!-- Large central button showing initial theme -->
       <div id="win-theme-btn" class="btn" style="transform: scale(2);" onclick="Game.resetGame()"></div>
   </div>
 
   <script src="helper.js"></script>
   <script>
-    // Player count helper logic
     let currentPlayerCount = 3;
     function updateCount(delta) {
         currentPlayerCount += delta;
@@ -245,9 +224,7 @@
         document.getElementById('p-count-display').innerText = currentPlayerCount;
     }
 
-    // Start
     window.onload = () => {
-        // Need user interaction to play audio initially
         document.body.addEventListener('click', () => {
              if(Game.audio.bg.src === "") Game.init();
         }, { once: true });
