@@ -10,7 +10,8 @@
   <style>
     :root {
       --bg-color: #1a1a1a;
-      --btn-size: 140px;
+      --btn-size: 130px;
+      --gold-color: #FFD700;
     }
 
     body {
@@ -23,8 +24,10 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      user-select: none;
     }
 
+    /* Screen Logic */
     .screen {
       display: none; 
       flex-direction: column;
@@ -32,27 +35,47 @@
       justify-content: center;
       width: 100%;
       height: 100%;
-      gap: 20px;
+      gap: 15px;
     }
 
-    h1, h2 { text-shadow: 2px 2px 4px #000; margin: 10px; }
+    /* Typography */
+    h1, h2 {
+      font-size: 1.8rem;
+      margin: 5px;
+      color: var(--gold-color);
+      text-transform: uppercase;
+      text-shadow: 2px 2px 0px #000, 0 0 10px rgba(255, 215, 0, 0.5);
+      letter-spacing: 1px;
+      text-align: center;
+    }
 
+    /* Grids */
     .grid-2x2 {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-    }
-
-    .grid-overworld {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 15px;
     }
 
+    /* Overworld Specific Layout */
+    .overworld-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+
+    /* The top 2x2 grid that gets the overlay */
+    .grid-top-quadrant {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        position: relative; /* Anchor for the overlay */
+    }
+
     .faction-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 8px;
         align-items: center;
     }
     .faction-row {
@@ -61,36 +84,91 @@
         justify-content: center;
     }
 
+    /* Button Structure (Label + Image) */
+    .btn-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: var(--btn-size);
+    }
+    .btn-label {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: white;
+        text-shadow: 1px 1px 2px black;
+        margin-bottom: 4px;
+        text-align: center;
+        white-space: nowrap;
+        overflow: hidden;
+        width: 100%;
+    }
+
     .btn {
-      width: var(--btn-size);
+      width: 100%;
       height: var(--btn-size);
       border: 2px solid #555;
-      border-radius: 20px;
+      border-radius: 15px;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
       background-color: #333;
-      box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+      box-shadow: 0 5px 8px rgba(0,0,0,0.6);
       cursor: pointer;
-      transition: transform 0.1s, box-shadow 0.1s;
+      transition: transform 0.1s;
     }
-
     .btn:active {
       transform: scale(0.95);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.6);
     }
 
-    .counter-box {
-        display: flex;
+    /* Overlays */
+    #click-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 1000;
+        display: flex; justify-content: center; align-items: center;
         flex-direction: column;
-        align-items: center;
-        gap: 20px;
+        cursor: pointer;
     }
-    #p-count-display { font-size: 4rem; font-weight: bold; }
-    .control-row { display: flex; gap: 20px; }
-    .ctrl-btn { font-size: 2rem; width: 60px; height: 60px; border-radius: 10px; background: #444; border: none; color: white; }
 
-    /* Updated CSS Paths to assets/ */
+    /* New Week/Month Overlay - Positioned over the Top Quadrant */
+    #event-overlay {
+        position: absolute;
+        inset: -10px; /* Stretch slightly beyond the buttons to look like a frame */
+        background-color: rgba(0,0,0,0.6); /* Dim background behind the image */
+        background-image: url('assets/newtime.avif');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        z-index: 900;
+        border-radius: 20px;
+        box-shadow: 0 0 15px #000;
+        
+        display: none; /* Toggled by JS */
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #event-text {
+        font-size: 1.8rem; 
+        color: var(--gold-color);
+        text-shadow: 3px 3px 0 #000;
+        text-align: center;
+        font-weight: bold;
+        background: rgba(0,0,0,0.6);
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 90%;
+    }
+
+    /* Player Count */
+    .counter-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+    #p-count-display { font-size: 4rem; font-weight: bold; color: white; }
+    .control-row { display: flex; gap: 20px; }
+    .ctrl-btn { font-size: 2rem; width: 60px; height: 60px; border-radius: 10px; background: #444; border: 1px solid gold; color: gold; }
+
+    /* Button Images */
     .btn-good { background-image: url('assets/good.avif'); }
     .btn-evil { background-image: url('assets/evil.avif'); }
     .btn-neutral { background-image: url('assets/neutral.avif'); }
@@ -113,41 +191,40 @@
     .btn-endturn { background-image: url('assets/end_turn.avif'); }
     .btn-rules { background-image: url('assets/rules.avif'); }
     .btn-wingame { background-image: url('assets/win_game.avif'); }
-
+    
     .btn-victory { background-image: url('assets/victory.avif'); }
     .btn-retreat { background-image: url('assets/retreat.avif'); }
     .btn-lose { background-image: url('assets/lose.avif'); }
     
-    .btn-confirm { 
-        background-color: #28a745; 
-        font-size: 3rem; 
-        display: flex; align-items: center; justify-content: center;
-    }
+    .btn-confirm { background-color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
 
-    @media (max-width: 350px) {
-        :root { --btn-size: 100px; }
-    }
-    @media (max-height: 700px) {
-         h1, h2 { font-size: 1rem; margin: 5px; }
-         .screen { gap: 10px; }
-    }
-
+    /* Media Queries */
+    @media (max-width: 380px) { :root { --btn-size: 100px; } }
+    @media (max-height: 700px) { .screen { gap: 8px; } h1,h2 { font-size: 1.4rem; } }
   </style>
 </head>
 <body>
 
   <pwa-update swpath="sw.js"></pwa-update>
 
+  <!-- CLICK TO BEGIN OVERLAY -->
+  <div id="click-overlay" onclick="Game.init()">
+    <h1>Tap to Enter</h1>
+    <p style="color: #ccc;">Audio requires interaction</p>
+  </div>
+
+  <!-- SCREEN 1: Theme -->
   <div id="screen-start" class="screen">
-    <h1>Select Theme</h1>
+    <h1>Select Mission Theme</h1>
     <div class="grid-2x2">
-      <div class="btn btn-good" onclick="Game.selectTheme('good')"></div>
-      <div class="btn btn-evil" onclick="Game.selectTheme('evil')"></div>
-      <div class="btn btn-neutral" onclick="Game.selectTheme('neutral')"></div>
-      <div class="btn btn-secret" onclick="Game.selectTheme('secret')"></div>
+        <div class="btn-wrapper"><span class="btn-label">Good</span><div class="btn btn-good" onclick="Game.selectTheme('good')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Evil</span><div class="btn btn-evil" onclick="Game.selectTheme('evil')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Neutral</span><div class="btn btn-neutral" onclick="Game.selectTheme('neutral')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Secret</span><div class="btn btn-secret" onclick="Game.selectTheme('secret')"></div></div>
     </div>
   </div>
 
+  <!-- SCREEN 2: Player Count -->
   <div id="screen-players" class="screen">
     <h1>Player Count</h1>
     <div class="counter-box">
@@ -156,62 +233,94 @@
             <div id="p-count-display">3</div>
             <button class="ctrl-btn" onclick="updateCount(1)">+</button>
         </div>
-        <div class="btn btn-confirm" onclick="Game.confirmPlayerCount(currentPlayerCount)">✅</div>
+        <div class="btn-wrapper"><span class="btn-label">Confirm</span><div class="btn btn-confirm" onclick="Game.confirmPlayerCount(currentPlayerCount)">✅</div></div>
     </div>
   </div>
 
+  <!-- SCREEN 3: Faction Selection -->
   <div id="screen-factions" class="screen">
     <h2 id="faction-player-title">Player 1</h2>
     <div class="faction-container">
         <div class="faction-row">
-            <div class="btn btn-castle faction-btn" data-faction="castle"></div>
-            <div class="btn btn-rampart faction-btn" data-faction="rampart"></div>
-            <div class="btn btn-tower faction-btn" data-faction="tower"></div>
+            <div class="btn-wrapper"><span class="btn-label">Castle</span><div class="btn btn-castle faction-btn" data-faction="castle"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Rampart</span><div class="btn btn-rampart faction-btn" data-faction="rampart"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Tower</span><div class="btn btn-tower faction-btn" data-faction="tower"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn btn-inferno faction-btn" data-faction="inferno"></div>
-            <div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div>
-            <div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div>
+            <div class="btn-wrapper"><span class="btn-label">Inferno</span><div class="btn btn-inferno faction-btn" data-faction="inferno"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Dungeon</span><div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Necropolis</span><div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn btn-fortress faction-btn" data-faction="fortress"></div>
-            <div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div>
+            <div class="btn-wrapper"><span class="btn-label">Fortress</span><div class="btn btn-fortress faction-btn" data-faction="fortress"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Stronghold</span><div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn btn-conflux faction-btn" data-faction="conflux"></div>
-            <div class="btn btn-cove faction-btn" data-faction="cove"></div>
+            <div class="btn-wrapper"><span class="btn-label">Conflux</span><div class="btn btn-conflux faction-btn" data-faction="conflux"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Cove</span><div class="btn btn-cove faction-btn" data-faction="cove"></div></div>
         </div>
     </div>
   </div>
 
+  <!-- SCREEN 3.5: Pre-Game -->
+  <div id="screen-pregame" class="screen">
+      <h1>Ready?</h1>
+      <div class="btn-wrapper">
+          <span class="btn-label">Start Game</span>
+          <div class="btn btn-start" style="transform: scale(1.5);" onclick="Game.startGame()"></div>
+      </div>
+  </div>
+
+  <!-- SCREEN 4: Overworld -->
   <div id="screen-overworld" class="screen">
-    <div class="grid-overworld">
-        <div class="btn btn-start" onclick="Game.startCombat()"></div>
-        <div class="btn btn-resource" onclick="Game.handleResource()"></div>
-        <div class="btn btn-artifact" onclick="Game.handleArtifact()"></div>
-        <div class="btn btn-endturn" onclick="Game.endTurn()"></div>
-        <div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div>
-        <div class="btn btn-wingame" onclick="Game.winGame()"></div>
+    <h1 id="overworld-title">Player 1's Turn</h1>
+    <div class="overworld-layout">
+        
+        <!-- Top Block: 2x2 with Overlay possibility -->
+        <div class="grid-top-quadrant">
+            <!-- The Overlay lives here, absolute to this container -->
+            <div id="event-overlay">
+                <div id="event-text"></div>
+            </div>
+
+            <div class="btn-wrapper"><span class="btn-label">Battle</span><div class="btn btn-start" onclick="Game.startCombat()"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Resource</span><div class="btn btn-resource" onclick="Game.handleResource()"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Artifact</span><div class="btn btn-artifact" onclick="Game.handleArtifact()"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">End Turn</span><div class="btn btn-endturn" onclick="Game.endTurn()"></div></div>
+        </div>
+
+        <!-- Bottom Block: 2x1 -->
+        <div class="grid-2x2">
+            <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div></div>
+            <div class="btn-wrapper"><span class="btn-label">Win Game</span><div class="btn btn-wingame" onclick="Game.winGame()"></div></div>
+        </div>
     </div>
   </div>
 
+  <!-- SCREEN 5: Combat -->
   <div id="screen-combat" class="screen">
+    <h1 id="combat-title">Player 1's Combat</h1>
     <div class="grid-2x2">
-        <div class="btn btn-victory" onclick="Game.combatVictory()"></div>
-        <div class="btn btn-retreat" onclick="Game.combatRetreat()"></div>
-        <div class="btn btn-lose" onclick="Game.combatLose()"></div>
-        <div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div>
+        <div class="btn-wrapper"><span class="btn-label">Win</span><div class="btn btn-victory" onclick="Game.combatVictory()"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Retreat</span><div class="btn btn-retreat" onclick="Game.combatRetreat()"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Lose</span><div class="btn btn-lose" onclick="Game.combatLose()"></div></div>
+        <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div></div>
     </div>
   </div>
 
+  <!-- SCREEN 6: Rules -->
   <div id="screen-rules" class="screen">
       <h1>Consulting Rules</h1>
-      <div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div>
+      <div class="btn-wrapper"><span class="btn-label">Back</span><div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div></div>
   </div>
 
+  <!-- SCREEN 7: Win -->
   <div id="screen-win" class="screen">
       <h1>Victory!</h1>
-      <div id="win-theme-btn" class="btn" style="transform: scale(2);" onclick="Game.resetGame()"></div>
+      <div class="btn-wrapper">
+          <span class="btn-label">New Game</span>
+          <div id="win-theme-btn" class="btn" style="transform: scale(1.5);" onclick="Game.resetGame()"></div>
+      </div>
   </div>
 
   <script src="helper.js"></script>
@@ -223,12 +332,6 @@
         if (currentPlayerCount > 8) currentPlayerCount = 8;
         document.getElementById('p-count-display').innerText = currentPlayerCount;
     }
-
-    window.onload = () => {
-        document.body.addEventListener('click', () => {
-             if(Game.audio.bg.src === "") Game.init();
-        }, { once: true });
-    };
   </script>
 </body>
 </html>
