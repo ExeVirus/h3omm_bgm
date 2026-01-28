@@ -2,32 +2,256 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PWA Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>HoMM3 Companion</title>
   <link rel="manifest" href="manifest.json">
   <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
+  
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 20px; }
-    button { margin: 10px; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; }
-    #video { width: 100%; max-width: 400px; display: none; }
+    :root {
+      --bg-color: #1a1a1a;
+      --btn-size: 140px;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .screen {
+      display: none; /* Toggled by JS */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      gap: 20px;
+    }
+
+    h1, h2 { text-shadow: 2px 2px 4px #000; margin: 10px; }
+
+    /* Button Grids */
+    .grid-2x2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .grid-overworld {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    /* Faction layout: 3, 3, 2, 2 */
+    .faction-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+    .faction-row {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+
+    /* UI Components */
+    .btn {
+      width: var(--btn-size);
+      height: var(--btn-size);
+      border: 2px solid #555;
+      border-radius: 20px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-color: #333;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    /* Player Count Styles */
+    .counter-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+    #p-count-display { font-size: 4rem; font-weight: bold; }
+    .control-row { display: flex; gap: 20px; }
+    .ctrl-btn { font-size: 2rem; width: 60px; height: 60px; border-radius: 10px; background: #444; border: none; color: white; }
+
+    /* Specific Button Images */
+    .btn-good { background-image: url('good.avif'); }
+    .btn-evil { background-image: url('evil.avif'); }
+    .btn-neutral { background-image: url('neutral.avif'); }
+    .btn-secret { background-image: url('secret.avif'); }
+
+    /* Factions */
+    .btn-castle { background-image: url('castle.avif'); }
+    .btn-rampart { background-image: url('rampart.avif'); }
+    .btn-tower { background-image: url('tower.avif'); }
+    .btn-inferno { background-image: url('inferno.avif'); }
+    .btn-dungeon { background-image: url('dungeon.avif'); }
+    .btn-necropolis { background-image: url('necropolis.avif'); }
+    .btn-fortress { background-image: url('fortress.avif'); }
+    .btn-stronghold { background-image: url('stronghold.avif'); }
+    .btn-conflux { background-image: url('conflux.avif'); }
+    .btn-cove { background-image: url('cove.avif'); }
+
+    /* Overworld */
+    .btn-start { background-image: url('start.avif'); }
+    .btn-resource { background-image: url('resource.avif'); }
+    .btn-artifact { background-image: url('artifact.avif'); }
+    .btn-endturn { background-image: url('end_turn.avif'); }
+    .btn-rules { background-image: url('rules.avif'); }
+    .btn-wingame { background-image: url('win_game.avif'); }
+
+    /* Combat */
+    .btn-victory { background-image: url('victory.avif'); }
+    .btn-retreat { background-image: url('retreat.avif'); }
+    .btn-lose { background-image: url('lose.avif'); }
+    
+    .btn-confirm { 
+        background-color: #28a745; 
+        font-size: 3rem; 
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 350px) {
+        :root { --btn-size: 100px; }
+    }
+    @media (max-height: 700px) {
+         h1, h2 { font-size: 1rem; margin: 5px; }
+         .screen { gap: 10px; }
+    }
+
   </style>
 </head>
 <body>
-  <h1>Hello PWA</h1>
-  
-  <pwa-install></pwa-install>
+
   <pwa-update swpath="sw.js"></pwa-update>
 
-  <div>
-    <button onclick="pwaHelper.exportFile('test.json', JSON.stringify({hello: 'world'}), 'application/json')">Export JSON</button>
-    <button onclick="pwaHelper.startCamera('video')">Start Camera</button>
-    <button onclick="pwaHelper.startGyro(v => document.getElementById('out').innerText = JSON.stringify(v))">Start Gyro</button>
+  <!-- SCREEN 1: Start / Theme Selection -->
+  <div id="screen-start" class="screen">
+    <h1>Select Theme</h1>
+    <div class="grid-2x2">
+      <div class="btn btn-good" onclick="Game.selectTheme('good')"></div>
+      <div class="btn btn-evil" onclick="Game.selectTheme('evil')"></div>
+      <div class="btn btn-neutral" onclick="Game.selectTheme('neutral')"></div>
+      <div class="btn btn-secret" onclick="Game.selectTheme('secret')"></div>
+    </div>
   </div>
 
-  <video id="video" autoplay playsinline></video>
-  <pre id="out"></pre>
+  <!-- SCREEN 2: Player Count -->
+  <div id="screen-players" class="screen">
+    <h1>Player Count</h1>
+    <div class="counter-box">
+        <div class="control-row">
+            <button class="ctrl-btn" onclick="updateCount(-1)">-</button>
+            <div id="p-count-display">3</div>
+            <button class="ctrl-btn" onclick="updateCount(1)">+</button>
+        </div>
+        <div class="btn btn-confirm" onclick="Game.confirmPlayerCount(currentPlayerCount)">✅</div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Faction Selection -->
+  <div id="screen-factions" class="screen">
+    <h2 id="faction-player-title">Player 1</h2>
+    <div class="faction-container">
+        <!-- Row 1: 3 -->
+        <div class="faction-row">
+            <div class="btn btn-castle faction-btn" data-faction="castle"></div>
+            <div class="btn btn-rampart faction-btn" data-faction="rampart"></div>
+            <div class="btn btn-tower faction-btn" data-faction="tower"></div>
+        </div>
+        <!-- Row 2: 3 -->
+        <div class="faction-row">
+            <div class="btn btn-inferno faction-btn" data-faction="inferno"></div>
+            <div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div>
+            <div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div>
+        </div>
+        <!-- Row 3: 2 -->
+        <div class="faction-row">
+            <div class="btn btn-fortress faction-btn" data-faction="fortress"></div>
+            <div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div>
+        </div>
+        <!-- Row 4: 2 -->
+        <div class="faction-row">
+            <div class="btn btn-conflux faction-btn" data-faction="conflux"></div>
+            <div class="btn btn-cove faction-btn" data-faction="cove"></div>
+        </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: Overworld -->
+  <div id="screen-overworld" class="screen">
+    <div class="grid-overworld">
+        <div class="btn btn-start" onclick="Game.startCombat()"></div>
+        <div class="btn btn-resource" onclick="Game.handleResource()"></div>
+        <div class="btn btn-artifact" onclick="Game.handleArtifact()"></div>
+        <div class="btn btn-endturn" onclick="Game.endTurn()"></div>
+        <div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div>
+        <div class="btn btn-wingame" onclick="Game.winGame()"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Combat -->
+  <div id="screen-combat" class="screen">
+    <div class="grid-2x2">
+        <div class="btn btn-victory" onclick="Game.combatVictory()"></div>
+        <div class="btn btn-retreat" onclick="Game.combatRetreat()"></div>
+        <div class="btn btn-lose" onclick="Game.combatLose()"></div>
+        <div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Rules -->
+  <div id="screen-rules" class="screen">
+      <h1>Consulting Rules</h1>
+      <div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div>
+  </div>
+
+  <!-- SCREEN 7: Win -->
+  <div id="screen-win" class="screen">
+      <h1>Victory!</h1>
+      <!-- Large central button showing initial theme -->
+      <div id="win-theme-btn" class="btn" style="transform: scale(2);" onclick="Game.resetGame()"></div>
+  </div>
 
   <script src="helper.js"></script>
+  <script>
+    // Player count helper logic
+    let currentPlayerCount = 3;
+    function updateCount(delta) {
+        currentPlayerCount += delta;
+        if (currentPlayerCount < 1) currentPlayerCount = 1;
+        if (currentPlayerCount > 8) currentPlayerCount = 8;
+        document.getElementById('p-count-display').innerText = currentPlayerCount;
+    }
+
+    // Start
+    window.onload = () => {
+        // Need user interaction to play audio initially
+        document.body.addEventListener('click', () => {
+             if(Game.audio.bg.src === "") Game.init();
+        }, { once: true });
+    };
+  </script>
 </body>
 </html>
