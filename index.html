@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PWA Demo</title>
+  <link rel="manifest" href="manifest.json">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwainstall"></script>
+  <style>
+    body { font-family: sans-serif; text-align: center; padding: 20px; }
+    button { margin: 10px; padding: 10px 20px; border-radius: 8px; border: 1px solid #ccc; }
+    #video { width: 100%; max-width: 400px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Hello PWA</h1>
+  
+  <pwa-install></pwa-install>
+  <pwa-update swpath="sw.js"></pwa-update>
+
+  <div>
+    <button onclick="pwaHelper.exportFile('test.json', JSON.stringify({hello: 'world'}), 'application/json')">Export JSON</button>
+    <button onclick="pwaHelper.startCamera('video')">Start Camera</button>
+    <button onclick="pwaHelper.startGyro(v => document.getElementById('out').innerText = JSON.stringify(v))">Start Gyro</button>
+  </div>
+
+  <video id="video" autoplay playsinline></video>
+  <pre id="out"></pre>
+
+  <script src="helper.js"></script>
+</body>
+</html>
