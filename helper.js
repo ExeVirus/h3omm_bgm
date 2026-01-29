@@ -35,7 +35,7 @@ const ASSET_QUEUE = [
     'assets/newday.mp3', 'assets/newweek.mp3', 'assets/newmonth.mp3',
     'assets/win_battle.mp3', 
     'assets/experience.mp3', 'assets/lose.mp3', 'assets/retreat.mp3',
-    'assets/win_game.mp3',
+    'assets/win_game.mp3', 'assets/ultimatelose.mp3',
 
     // Terrain
     `assets/dirt.mp3`,
@@ -75,6 +75,7 @@ const Game = {
         overworldTheme: 'town', // 'town' or 'tile'
         currentTerrainMusic: null, // Track the specific terrain for this turn
         lastTerrainMusic: null,    // Track the previous turn's terrain to avoid repeats
+        pendingGameOver: null, // Stores 'win' or 'lose
         // Helper state for setup
         tempPlayerName: ""
     },
@@ -541,15 +542,34 @@ const Game = {
         }
     },
 
-    // Standard Win
     winGame() {
-        const playerName = this.state.players[this.state.currentPlayerIndex].name;
-        this.finishGameSequence('assets/win_game.avif', `${playerName}'s Victory!`, 'assets/win_game.mp3', true);
+        this.state.pendingGameOver = 'win';
+        document.getElementById('confirm-msg').innerText = "Proclaim Victory?";
+        document.getElementById('confirm-overlay').style.display = 'flex';
     },
 
-    // New Lose Logic
     loseGame() {
-        this.finishGameSequence('assets/lose.avif', 'Defeat', 'assets/lose.mp3', false);
+        this.state.pendingGameOver = 'lose';
+        document.getElementById('confirm-msg').innerText = "Really Lost Scenario?";
+        document.getElementById('confirm-overlay').style.display = 'flex';
+    },
+
+    // Handles the Yes/No logic
+    confirmAction(isConfirmed) {
+        const action = this.state.pendingGameOver;
+        
+        // Hide overlay immediately
+        document.getElementById('confirm-overlay').style.display = 'none';
+        this.state.pendingGameOver = null;
+
+        if (isConfirmed) {
+            if (action === 'win') {
+                const playerName = this.state.players[this.state.currentPlayerIndex].name;
+                this.finishGameSequence('assets/win_game.avif', `${playerName}'s Victory!`, 'assets/win_game.mp3', true);
+            } else if (action === 'lose') {
+                this.finishGameSequence('assets/lose.avif', 'Defeat', 'assets/ultimatelose.mp3', false);
+            }
+        }
     },
 
     finishGameSequence(imgUrl, titleText, audioUrl, loop) {
@@ -582,17 +602,25 @@ const Game = {
     },
 
     resetGame() {
+        // 1. Clear game state
         this.state.players = [];
         this.state.currentPlayerIndex = 0;
         this.state.round = 1;
         this.state.selectedTheme = null;
         this.state.playerCount = 3;
-        this.state.lastTerrainMusic = null;
+        this.state.lastTerrainMusic = null; 
         
-        this.stopBg();
+        // 2. Stop sounds and music
+        this.stopBg(true); 
+        this.audio.sfx.pause();
+        this.audio.sfx.currentTime = 0;
+        this.audio.sfx.onended = null;
+        this.audio.sfx.onerror = null;
+        this.audio.currentBgUrl = null;
+
+        // 3. Return to Main Menu
         setTimeout(() => this.init(), 100);
     },
-
     showScreen(id) {
         document.querySelectorAll('.screen').forEach(el => el.style.display = 'none');
         document.getElementById(id).style.display = 'flex';

@@ -465,6 +465,23 @@
       </div>
   </div>
 
+  <!-- Confirmation Overlay -->
+  <div id="confirm-overlay" class="screen" style="display:none; position:fixed; background:rgba(0,0,0,0.9); z-index:10000; inset:0;">
+      <h1 id="confirm-msg">Are you sure?</h1>
+      <div class="control-row">
+          <!-- Yes Button -->
+          <div class="btn-wrapper">
+              <span class="btn-label">Confirm</span>
+              <div class="btn btn-confirm" onclick="Game.confirmAction(true)">✅</div>
+          </div>
+          <!-- No Button -->
+          <div class="btn-wrapper">
+              <span class="btn-label">Cancel</span>
+              <div class="btn" style="background-color: #622127; display: flex; align-items: center; justify-content: center; font-size: 3rem;" onclick="Game.confirmAction(false)">❌</div>
+          </div>
+      </div>
+  </div>
+
   <script src="helper.js"></script>
   <script>
     let currentPlayerCount = 3;
