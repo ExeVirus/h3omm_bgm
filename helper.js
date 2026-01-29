@@ -86,7 +86,9 @@ const Game = {
         activeChannel: 'ch1',
         sfx: new Audio(),
         currentBgUrl: null,
-        fadeInterval: null
+        fadeInterval: null,
+        masterVolume: 1.0,
+        isMuted: false
     },
 
     // --- AUDIO ENGINE ---
@@ -106,7 +108,8 @@ const Game = {
 
         incoming.src = fullUrl;
         incoming.loop = true;
-        incoming.volume = 0; 
+        incoming.volume = 0;
+        incoming.muted = this.audio.isMuted;
         this.audio.currentBgUrl = fullUrl;
         this.audio.activeChannel = nextChannelName;
 
@@ -122,9 +125,10 @@ const Game = {
             this.audio.fadeInterval = setInterval(() => {
                 const step = 0.05;
                 let isDone = true;
+                const targetVol = this.audio.masterVolume;
 
-                if (incoming.volume < 1) {
-                    incoming.volume = Math.min(1, incoming.volume + step);
+                if (incoming.volume < targetVol) {
+                    incoming.volume = Math.min(targetVol, incoming.volume + step);
                     isDone = false;
                 }
                 if (outgoing.volume > 0) {
@@ -198,8 +202,8 @@ const Game = {
 
         this.audio.sfx.src = `assets/${filename}`;
         this.audio.sfx.loop = false;
-        this.audio.sfx.volume = 1;
-        
+        this.audio.sfx.volume = this.audio.masterVolume;
+        this.audio.sfx.muted = this.audio.isMuted;
         // 2. Set the callback if provided
         if (onComplete) {
             const handleDone = () => {
@@ -215,6 +219,27 @@ const Game = {
             console.error(`SFX Play Blocked (${filename}):`, e);
             if(onComplete) onComplete();
         });
+    },
+
+    setVolume(val) {
+        this.audio.masterVolume = parseFloat(val);
+        
+        // Update currently active background channel volume
+        // (Fade logic will automatically use this value as it runs)
+        this.audio[this.audio.activeChannel].volume = this.audio.masterVolume;
+    },
+
+    toggleMute() {
+        this.audio.isMuted = !this.audio.isMuted;
+        
+        // Apply mute instantly to all channels
+        this.audio.ch1.muted = this.audio.isMuted;
+        this.audio.ch2.muted = this.audio.isMuted;
+        this.audio.sfx.muted = this.audio.isMuted;
+
+        // Update UI
+        document.getElementById('mute-btn').innerText = this.audio.isMuted ? '🔇' : '🔊';
+        document.getElementById('mute-btn').classList.toggle('is-muted', this.audio.isMuted);
     },
 
     // --- PRELOADER ---
@@ -606,7 +631,7 @@ const Game = {
             this.audio.activeChannel = 'ch1';
             active.src = audioUrl;
             active.loop = true;
-            active.volume = 1;
+            active.volume = this.audio.masterVolume;
             active.play().catch(e => console.log("Win play err", e));
             this.audio.currentBgUrl = audioUrl;
         } else {
