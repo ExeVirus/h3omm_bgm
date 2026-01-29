@@ -273,24 +273,37 @@ const Game = {
             return;
         }
         
-        // Setup state for this selection step
+        // Setup UI for current player
         const defaultName = `Player ${playerIndex + 1}`;
         this.state.tempPlayerName = defaultName;
         document.getElementById('faction-player-title').innerText = defaultName;
         
         this.showScreen('screen-factions');
         
+        // Identify which factions are already taken
+        const takenFactions = this.state.players.map(p => p.faction);
+        
         const buttons = document.querySelectorAll('.faction-btn');
         buttons.forEach(btn => {
-            btn.onclick = () => {
-                const faction = btn.dataset.faction;
-                this.state.players.push({ 
-                    id: playerIndex, 
-                    faction: faction, 
-                    name: this.state.tempPlayerName 
-                });
-                this.startFactionSelection(playerIndex + 1);
-            };
+            const faction = btn.dataset.faction;
+            
+            if (takenFactions.includes(faction)) {
+                // Faction is already picked: Apply disabled style and remove click
+                btn.classList.add('disabled');
+                btn.onclick = null;
+            } else {
+                // Faction is available: Remove disabled style and attach click
+                btn.classList.remove('disabled');
+                btn.onclick = () => {
+                    this.state.players.push({ 
+                        id: playerIndex, 
+                        faction: faction, 
+                        name: this.state.tempPlayerName 
+                    });
+                    // Proceed to next player
+                    this.startFactionSelection(playerIndex + 1);
+                };
+            }
         });
     },
 
@@ -608,7 +621,8 @@ const Game = {
         this.state.round = 1;
         this.state.selectedTheme = null;
         this.state.playerCount = 3;
-        this.state.lastTerrainMusic = null; 
+        this.state.lastTerrainMusic = null;
+        document.querySelectorAll('.faction-btn').forEach(btn => btn.classList.remove('disabled'));
         
         // 2. Stop sounds and music
         this.stopBg(true); 

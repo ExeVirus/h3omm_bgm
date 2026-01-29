@@ -290,6 +290,12 @@
     .btn-lose { background-image: url('assets/lose.avif'); }
     
     .btn-confirm { background-color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+    .btn.disabled {
+      filter: brightness(0.4);
+      cursor: not-allowed;
+      pointer-events: none; /* Prevents click events entirely */
+      border-color: #333;
+    }
 
     /* Media Queries */
     @media (max-width: 380px) { :root { --btn-size: 100px; } }
@@ -488,7 +494,7 @@
     function updateCount(delta) {
         currentPlayerCount += delta;
         if (currentPlayerCount < 1) currentPlayerCount = 1;
-        if (currentPlayerCount > 8) currentPlayerCount = 8;
+        if (currentPlayerCount > 10) currentPlayerCount = 10;
         document.getElementById('p-count-display').innerText = currentPlayerCount;
     }
   </script>
