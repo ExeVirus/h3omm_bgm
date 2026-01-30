@@ -256,24 +256,36 @@ const Game = {
     // --- PRELOADER ---
     
     initPreloader() {
-        let qIndex = 0;
-        const loadNext = () => {
-            if (qIndex >= ASSET_QUEUE.length) {
-                console.log("Preload Complete");
+        if (!('caches' in window)) return;
+
+        // Use the global config variable
+        const cacheName = GAME_CONFIG.AUDIO_CACHE_NAME; 
+
+        caches.open(cacheName).then(async cache => {
+            // 1. Get list of existing keys
+            const keys = await cache.keys();
+            
+            // ... (rest of the logic remains the same) ...
+            
+            const cachedUrls = new Set(keys.map(k => new URL(k.url).pathname));
+
+            const toCache = ASSET_QUEUE.filter(url => {
+                const normalized = url.replace(/^\.\//, '');
+                const fullPath = new URL(normalized, window.location.href).pathname;
+                return !cachedUrls.has(fullPath);
+            });
+
+            if (toCache.length === 0) {
+                console.log("Audio fully cached offline.");
                 return;
             }
-            const url = ASSET_QUEUE[qIndex];
-            qIndex++;
+
+            console.log(`Caching ${toCache.length} new audio assets in background...`);
             
-            fetch(url)
-                .then(r => r.blob())
-                .then(() => loadNext())
-                .catch(err => {
-                    console.log("Preload skip:", url);
-                    loadNext();
-                });
-        };
-        loadNext();
+            toCache.forEach(url => {
+                cache.add(url).catch(err => console.warn(`Failed to background cache: ${url}`));
+            });
+        });
     },
 
     // --- GAME LOGIC ---

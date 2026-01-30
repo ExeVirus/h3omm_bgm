@@ -1,8 +1,9 @@
-const CACHE_NAME = 'h3omm3_bgm_v0.9.8.2';
+importScripts('config.js'); // Loads GAME_CONFIG
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
     './',
+    './config.js',
     './index.html',
     './manifest.json',
     './helper.js',
@@ -21,16 +22,10 @@ const CORE_ASSETS = [
     './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif'
 ];
 
-// Audio is no longer blocked here. 
-// helper.js will fetch() them sequentially, which triggers the fetch listener below
-// to cache them in the background one by one.
-
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(c => {
-      // Only cache core assets to allow instant installation
-      return c.addAll(CORE_ASSETS);
-    })
+    // Use the variable from config.js
+    caches.open(GAME_CONFIG.CORE_CACHE_NAME).then(c => c.addAll(CORE_ASSETS))
   );
   self.skipWaiting();
 });
@@ -38,22 +33,17 @@ self.addEventListener('install', (e) => {
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then(res => {
-      // Return cached if found
       if (res) return res;
       
-      // If not, fetch network and cache it (Dynamic Caching)
       return fetch(e.request).then(response => {
-        // Check if valid response
         if(!response || response.status !== 200 || response.type !== 'basic') {
           return response;
         }
-
-        // Clone response to put in cache
         const responseToCache = response.clone();
-        caches.open(CACHE_NAME).then(cache => {
+
+        caches.open(GAME_CONFIG.CORE_CACHE_NAME).then(cache => {
           cache.put(e.request, responseToCache);
         });
-
         return response;
       });
     })
@@ -64,7 +54,7 @@ self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(keyList.map((key) => {
-                if (key !== CACHE_NAME) {
+                if (key !== GAME_CONFIG.CORE_CACHE_NAME && key !== GAME_CONFIG.AUDIO_CACHE_NAME) {
                     return caches.delete(key);
                 }
             }));
