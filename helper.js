@@ -31,11 +31,21 @@ const ASSET_QUEUE = [
     'assets/battle5.mp3', 'assets/battle6.mp3', 'assets/battle7.mp3', 'assets/battle8.mp3',
     'assets/combat1.mp3', 'assets/combat2.mp3', 'assets/combat3.mp3', 'assets/combat4.mp3',
     'assets/ai1.mp3', 'assets/ai2.mp3', 'assets/ai3.mp3',
-    'assets/chest.mp3', 'assets/treasure.mp3',
+    'assets/artifact.mp3',
     'assets/newday.mp3', 'assets/newweek.mp3', 'assets/newmonth.mp3',
     'assets/win_battle.mp3', 
     'assets/experience.mp3', 'assets/lose.mp3', 'assets/retreat.mp3',
     'assets/win_game.mp3', 'assets/ultimatelose.mp3',
+
+    // Treasure
+    `assets/treasure1.mp3`,
+    `assets/treasure2.mp3`,
+    `assets/treasure3.mp3`,
+    `assets/treasure4.mp3`,
+    `assets/treasure5.mp3`,
+    `assets/treasure6.mp3`,
+    `assets/treasure7.mp3`,
+    `assets/treasure8.mp3`,
 
     // Terrain
     `assets/dirt.mp3`,
@@ -70,8 +80,9 @@ const Game = {
         round: 1,
         selectedTheme: null,
         playerCount: 3,
-        lastBattleIdx: -1, 
+        lastBattleIdx: -1,
         lastCombatIdx: -1,
+        lastTreasureIdx: -1,
         overworldTheme: 'town', // 'town' or 'tile'
         currentTerrainMusic: null, // Track the specific terrain for this turn
         lastTerrainMusic: null,    // Track the previous turn's terrain to avoid repeats
@@ -448,7 +459,7 @@ const Game = {
                 overlayText = "Astrologers Proclaim!";
             } else {
                 sfxToPlay = 'newweek.mp3';
-                overlayText = "Resource Round";
+                overlayText = "Resource Round<br>(Event Round)";
             }
         }
 
@@ -456,7 +467,7 @@ const Game = {
 
         if (isSpecialEvent) {
             const ol = document.getElementById('event-overlay');
-            document.getElementById('event-text').innerText = overlayText;
+            document.getElementById('event-text').innerHTML = overlayText;
             ol.style.display = 'flex';
 
             this.playSfx(sfxToPlay, () => {
@@ -477,13 +488,18 @@ const Game = {
     handleResource() {
         this.audio.ch1.pause();
         this.audio.ch2.pause();
-        this.playSfx('chest.mp3', () => this.resumeBg());
+        let introNum;
+        do {
+            introNum = Math.floor(Math.random() * 8) + 1;
+        } while (introNum === this.state.lastTreasureIdx && introNum !== 0);
+        this.state.lastTreasureIdx = introNum;
+        this.playSfx(`treasure${introNum}.mp3`, () => this.resumeBg());
     },
 
     handleArtifact() {
         this.audio.ch1.pause();
         this.audio.ch2.pause();
-        this.playSfx('treasure.mp3', () => this.resumeBg());
+        this.playSfx('artifact.mp3', () => this.resumeBg());
     },
 
     startCombat() {
