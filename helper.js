@@ -12,10 +12,11 @@ const FACTION_COLORS = {
     'neutral': '#333333' // Default
 };
 
-const TERRAIN = [
-    'assets/dirt', 'assets/grass', 'assets/lava', 'assets/rough',
-    'assets/sand', 'assets/snow', 'assets/swamp', 'assets/underground',
-    'assets/water'
+// Cleaned up list for easier logic
+const TERRAIN_NAMES = [
+    'dirt', 'grass', 'lava', 'rough',
+    'sand', 'snow', 'swamp', 'underground',
+    'water'
 ];
 
 const ASSET_QUEUE = [
@@ -37,27 +38,16 @@ const ASSET_QUEUE = [
     'assets/win_game.mp3', 'assets/ultimatelose.mp3',
 
     // Treasure
-    `assets/treasure1.mp3`,
-    `assets/treasure2.mp3`,
-    `assets/treasure3.mp3`,
-    `assets/treasure4.mp3`,
-    `assets/treasure5.mp3`,
-    `assets/treasure6.mp3`,
-    `assets/treasure7.mp3`,
-    `assets/treasure8.mp3`,
+    `assets/treasure1.mp3`, `assets/treasure2.mp3`, `assets/treasure3.mp3`,
+    `assets/treasure4.mp3`, `assets/treasure5.mp3`, `assets/treasure6.mp3`,
+    `assets/treasure7.mp3`, `assets/treasure8.mp3`,
 
     // Terrain
-    `assets/dirt.mp3`,
-    `assets/grass.mp3`,
-    `assets/lava.mp3`,
-    `assets/rough.mp3`,
-    `assets/sand.mp3`,
-    `assets/snow.mp3`,
-    `assets/swamp.mp3`,
-    `assets/underground.mp3`,
-    `assets/water.mp3`,
+    `assets/dirt.mp3`, `assets/grass.mp3`, `assets/lava.mp3`,
+    `assets/rough.mp3`, `assets/sand.mp3`, `assets/snow.mp3`,
+    `assets/swamp.mp3`, `assets/underground.mp3`, `assets/water.mp3`,
 
-    // 2. Images (AVIFs fetched after music starts loading)
+    // 2. Images 
     'assets/good.avif', 'assets/evil.avif', 'assets/neutral.avif', 'assets/secret.avif',
     'assets/castle.avif', 'assets/rampart.avif', 'assets/tower.avif',
     'assets/inferno.avif', 'assets/dungeon.avif', 'assets/necropolis.avif',
@@ -66,7 +56,11 @@ const ASSET_QUEUE = [
     'assets/newtime.avif','./assets/tile.avif',
     'assets/start.avif', 'assets/resource.avif', 'assets/artifact.avif', 
     'assets/end_turn.avif', 'assets/rules.avif', 'assets/win_game.avif',
-    'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif'
+    'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif',
+    // Terrains
+    'assets/dirt.avif', 'assets/grass.avif', 'assets/lava.avif', 'assets/rough.avif',
+    'assets/sand.avif', 'assets/snow.avif', 'assets/swamp.avif', 'assets/underground.avif',
+    'assets/water.avif'
 ];
 
 const Game = {
@@ -81,12 +75,11 @@ const Game = {
         lastBattleIdx: -1,
         lastCombatIdx: -1,
         lastTreasureIdx: -1,
-        overworldTheme: null,
-        currentTerrainMusic: null, // Track the specific terrain for this turn
-        lastTerrainMusic: null,    // Track the previous turn's terrain to avoid repeats
+        
+        // Updated State for new logic
+        currentOverworldName: null, // Holds 'castle', 'dirt', 'lava', etc.
         trackPositions: {},
-        pendingGameOver: null, // Stores 'win' or 'lose
-        // Helper state for setup
+        pendingGameOver: null,
         tempPlayerName: ""
     },
 
@@ -101,8 +94,7 @@ const Game = {
         isMuted: false
     },
 
-    // --- AUDIO ENGINE ---
-
+    // --- AUDIO ENGINE (Unchanged) ---
     playBg(url, fade = true) {
         const fullUrl = url.includes('/') ? url : `assets/${url}`;
         if (this.audio.currentBgUrl === fullUrl) return;
@@ -212,7 +204,6 @@ const Game = {
     },
 
     playSfx(filename, onComplete = null) {
-        // 1. Stop any current SFX and wipe existing callbacks
         this.audio.sfx.pause();
         this.audio.sfx.onended = null;
         this.audio.sfx.onerror = null;
@@ -221,7 +212,6 @@ const Game = {
         this.audio.sfx.loop = false;
         this.audio.sfx.volume = this.audio.masterVolume;
         this.audio.sfx.muted = this.audio.isMuted;
-        // 2. Set the callback if provided
         if (onComplete) {
             const handleDone = () => {
                 this.audio.sfx.onended = null;
@@ -233,56 +223,31 @@ const Game = {
         }
 
         this.audio.sfx.play().catch(e => {
-            console.error(`SFX Play Blocked (${filename}):`, e);
             if(onComplete) onComplete();
         });
     },
 
     setVolume(val) {
         this.audio.masterVolume = parseFloat(val);
-        
-        // Update currently active background channel volume
-        // (Fade logic will automatically use this value as it runs)
         this.audio[this.audio.activeChannel].volume = this.audio.masterVolume;
     },
 
     toggleMute() {
         this.audio.isMuted = !this.audio.isMuted;
-        
-        // Apply mute instantly to all channels
         this.audio.ch1.muted = this.audio.isMuted;
         this.audio.ch2.muted = this.audio.isMuted;
         this.audio.sfx.muted = this.audio.isMuted;
-
-        // Update UI
         document.getElementById('mute-btn').innerText = this.audio.isMuted ? '🔇' : '🔊';
         document.getElementById('mute-btn').classList.toggle('is-muted', this.audio.isMuted);
     },
 
-    // --- PRELOADER ---
     initPreloader() {
-        // The Service Worker (sw.js) handles the download on install.
-        // This simple fetch loop just ensures they are loaded into 
-        // the browser's memory/disk cache for smoother playback start.
-        
         let qIndex = 0;
         const loadNext = () => {
-            if (qIndex >= ASSET_QUEUE.length) {
-                console.log("Preload Complete");
-                return;
-            }
+            if (qIndex >= ASSET_QUEUE.length) return;
             const url = ASSET_QUEUE[qIndex];
             qIndex++;
-            
-            // Just request it. The Service Worker will intercept this.
-            // If the SW is done installing, it serves from Cache.
-            // If the SW is still installing, this might hit network (deduplicated by browser).
-            fetch(url)
-                .then(() => loadNext())
-                .catch(err => {
-                    console.log("Preload skip:", url);
-                    loadNext();
-                });
+            fetch(url).then(() => loadNext()).catch(() => loadNext());
         };
         loadNext();
     },
@@ -320,26 +285,21 @@ const Game = {
             return;
         }
         
-        // Setup UI for current player
         const defaultName = `Player ${playerIndex + 1}`;
         this.state.tempPlayerName = defaultName;
         document.getElementById('faction-player-title').innerText = defaultName;
         
         this.showScreen('screen-factions');
         
-        // Identify which factions are already taken
         const takenFactions = this.state.players.map(p => p.faction);
         
         const buttons = document.querySelectorAll('.faction-btn');
         buttons.forEach(btn => {
             const faction = btn.dataset.faction;
-            
             if (takenFactions.includes(faction)) {
-                // Faction is already picked: Apply disabled style and remove click
                 btn.classList.add('disabled');
                 btn.onclick = null;
             } else {
-                // Faction is available: Remove disabled style and attach click
                 btn.classList.remove('disabled');
                 btn.onclick = () => {
                     this.state.players.push({ 
@@ -347,7 +307,6 @@ const Game = {
                         faction: faction, 
                         name: this.state.tempPlayerName 
                     });
-                    // Proceed to next player
                     this.startFactionSelection(playerIndex + 1);
                 };
             }
@@ -375,71 +334,79 @@ const Game = {
 
     startTurn(isTransition = true, musicDelay = 0) {
         const player = this.state.players[this.state.currentPlayerIndex];
-        
         this.state.trackPositions = {};
         
-        // Default to Town Theme on new turn
-        this.state.overworldTheme = `${player.faction}.mp3`;
+        // RESET to Faction Theme at start of turn
+        this.state.currentOverworldName = player.faction;
         
+        // Update UI
         document.getElementById('overworld-title').innerText = `${player.name}'s Turn`;
         document.getElementById('overworld-faction-subtitle').innerText = player.faction;
         this.updateFactionColor(player.faction);
+        this.updateThemeButtonUI();
+        
         this.showScreen('screen-overworld');
         
+        const overworldMusic = `assets/${this.state.currentOverworldName}.mp3`;
+
         if (!isTransition) {
-            this.playBg(`assets/${this.state.overworldTheme}.mp3`);
+            this.playBg(overworldMusic);
         } else {
             setTimeout(() => {
                 if(this.state.currentScreen === 'screen-overworld') {
-                    this.playBg(`assets/${this.state.overworldTheme}.mp3`);
+                    this.playBg(overworldMusic);
                 }
             }, musicDelay);
         }
     },
 
-    getFactionMusic(faction) {
-        const map = {
-            'castle': 'assets/castle.mp3',
-            'rampart': 'assets/rampart.mp3',
-            'tower': 'assets/tower.mp3',
-            'inferno': 'assets/inferno.mp3',
-            'dungeon': 'assets/dungeon.mp3',
-            'necropolis': 'assets/necropolis.mp3',
-            'fortress': 'assets/fortress.mp3',
-            'stronghold': 'assets/stronghold.mp3',
-            'conflux': 'assets/conflux.mp3',
-            'cove': 'assets/cove.mp3'
-        };
-        return map[faction];
-    },
+    // --- NEW THEME SELECTION LOGIC ---
 
-    openThemeSelection() {
+    openThemeSelector() {
         const player = this.state.players[this.state.currentPlayerIndex];
+        const faction = player.faction;
+
+        // 1. Setup the Faction Button (Row 1)
+        const factionBtn = document.getElementById('theme-faction-btn');
+        const factionLabel = document.getElementById('theme-faction-label');
         
-        // Set Faction Town
-        const townCont = document.getElementById('btn-theme-select-faction');
-        townCont.class = `btn btn-${player.faction}}`
-        townCont.onclick = Game.selectOverworldTheme(player.faction);
-        Game.updateThemeButtonUI()
+        factionLabel.innerText = `${faction.charAt(0).toUpperCase() + faction.slice(1)} (Town)`;
+        factionBtn.style.backgroundImage = `url('assets/${faction}.avif')`;
+        
+        // Remove old listener and add new specific one
+        factionBtn.onclick = () => {
+            this.applyThemeSelection(faction);
+        };
 
         this.showScreen('screen-theme-select');
     },
 
-    selectOverworldTheme(theme) {
-        this.state.overworldTheme = theme;
-        this.playBg(`assets/${overworldTheme}.mp3`);
+    // Called when a button on screen-theme-select is clicked
+    applyThemeSelection(themeName) {
+        this.state.currentOverworldName = themeName;
+        this.updateThemeButtonUI();
+        
+        // Switch Music immediately
+        this.playBg(`assets/${themeName}.mp3`);
+        
+        // Go back
         this.showScreen('screen-overworld');
     },
 
     updateThemeButtonUI() {
-        const player = this.state.players[this.state.currentPlayerIndex];
         const btn = document.getElementById('btn-theme-toggle');
-        btn.class = `btn btn-${this.state.overworldTheme}`;
+        const currentName = this.state.currentOverworldName;
+        
+        // Always "Change Theme"
+        // Image matches current theme (faction or terrain)
+        btn.style.backgroundImage = `url('assets/${currentName}.avif')`;
     },
 
     getCurrentOverworldMusic() {
-        return `assets/${this.state.overworldTheme}.mp3`;
+        return `assets/${this.state.currentOverworldName}.mp3`;
     },
+
+    // ---------------------------------
 
     endTurn() {
         let nextIndex = this.state.currentPlayerIndex + 1;
@@ -453,8 +420,6 @@ const Game = {
             nextRound++;
             isSpecialEvent = true;
             
-            // Even rounds (2, 4...) are Month (Astrologers)
-            // Odd rounds (3, 5...) are Week (Resource)
             if (nextRound % 2 === 0) {
                 sfxToPlay = 'newmonth.mp3';
                 overlayText = "Astrologers Proclaim!";
@@ -505,7 +470,6 @@ const Game = {
 
     startCombat() {
         this.stopBg();
-        // Use custom name
         document.getElementById('combat-title').innerText = `${this.state.players[this.state.currentPlayerIndex].name}'s Combat`;
 
         let introNum;
@@ -530,7 +494,6 @@ const Game = {
         });
     },
 
-    // --- COMBAT RESULTS ---
     combatVictory() {
         this.stopBg();
         this.showCombatOverlay("Victory", "assets/victory.avif");
@@ -549,17 +512,11 @@ const Game = {
         this.playSfx('lose.mp3', () => this.returnToOverworld());
     },
 
-    // --- OVERLAY HELPERS ---
     showCombatOverlay(text, bgImageUrl) {
-        // Update Title
         document.getElementById('combat-title').innerText = text;
-        
-        // Update Overlay
         const overlay = document.getElementById('combat-event-overlay');
         overlay.style.backgroundImage = `url('${bgImageUrl}')`;
         overlay.style.display = 'flex';
-        
-        // Update Overlay Text
         document.getElementById('combat-event-text').innerText = text;
     },
 
@@ -572,9 +529,9 @@ const Game = {
         this.audio.sfx.pause();
         this.audio.sfx.onended = null;
         this.hideCombatOverlay();
-        
-        // Instead of startTurn(true), we just switch screen and play the correct current music
         this.showScreen('screen-overworld');
+        
+        // Play specifically what was playing before combat (Faction or specific Terrain)
         this.playBg(this.getCurrentOverworldMusic());
     },
 
@@ -614,11 +571,8 @@ const Game = {
         document.getElementById('confirm-overlay').style.display = 'flex';
     },
 
-    // Handles the Yes/No logic
     confirmAction(isConfirmed) {
         const action = this.state.pendingGameOver;
-        
-        // Hide overlay immediately
         document.getElementById('confirm-overlay').style.display = 'none';
         this.state.pendingGameOver = null;
 
@@ -662,16 +616,13 @@ const Game = {
     },
 
     resetGame() {
-        // 1. Clear game state
         this.state.players = [];
         this.state.currentPlayerIndex = 0;
         this.state.round = 1;
         this.state.selectedTheme = null;
         this.state.playerCount = 3;
-        this.state.lastTerrainMusic = null;
         document.querySelectorAll('.faction-btn').forEach(btn => btn.classList.remove('disabled'));
         
-        // 2. Stop sounds and music
         this.stopBg(true); 
         this.audio.sfx.pause();
         this.audio.sfx.currentTime = 0;
@@ -680,7 +631,6 @@ const Game = {
         this.audio.currentBgUrl = null;
         this.state.trackPositions = {};
 
-        // 3. Return to Main Menu
         setTimeout(() => this.init(), 100);
     },
     showScreen(id) {
