@@ -254,38 +254,31 @@ const Game = {
     },
 
     // --- PRELOADER ---
-    
     initPreloader() {
-        if (!('caches' in window)) return;
-
-        // Use the global config variable
-        const cacheName = GAME_CONFIG.AUDIO_CACHE_NAME; 
-
-        caches.open(cacheName).then(async cache => {
-            // 1. Get list of existing keys
-            const keys = await cache.keys();
-            
-            // ... (rest of the logic remains the same) ...
-            
-            const cachedUrls = new Set(keys.map(k => new URL(k.url).pathname));
-
-            const toCache = ASSET_QUEUE.filter(url => {
-                const normalized = url.replace(/^\.\//, '');
-                const fullPath = new URL(normalized, window.location.href).pathname;
-                return !cachedUrls.has(fullPath);
-            });
-
-            if (toCache.length === 0) {
-                console.log("Audio fully cached offline.");
+        // The Service Worker (sw.js) handles the download on install.
+        // This simple fetch loop just ensures they are loaded into 
+        // the browser's memory/disk cache for smoother playback start.
+        
+        let qIndex = 0;
+        const loadNext = () => {
+            if (qIndex >= ASSET_QUEUE.length) {
+                console.log("Preload Complete");
                 return;
             }
-
-            console.log(`Caching ${toCache.length} new audio assets in background...`);
+            const url = ASSET_QUEUE[qIndex];
+            qIndex++;
             
-            toCache.forEach(url => {
-                cache.add(url).catch(err => console.warn(`Failed to background cache: ${url}`));
-            });
-        });
+            // Just request it. The Service Worker will intercept this.
+            // If the SW is done installing, it serves from Cache.
+            // If the SW is still installing, this might hit network (deduplicated by browser).
+            fetch(url)
+                .then(() => loadNext())
+                .catch(err => {
+                    console.log("Preload skip:", url);
+                    loadNext();
+                });
+        };
+        loadNext();
     },
 
     // --- GAME LOGIC ---
