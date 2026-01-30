@@ -256,6 +256,8 @@
 
     .btn-start { background-image: url('assets/start.avif'); }
     .btn-resource { background-image: url('assets/resource.avif'); }
+    .btn-valuable { background-image: url('assets/valuable.avif'); }
+    .btn-gold { background-image: url('assets/gold.avif'); }
     .btn-artifact { background-image: url('assets/artifact.avif'); }
     .btn-endturn { background-image: url('assets/end_turn.avif'); }
     .btn-rules { background-image: url('assets/rules.avif'); }
@@ -355,6 +357,19 @@
       <div class="grid-top-quadrant">
           <div id="event-overlay">
               <div id="event-text"></div>
+          </div>
+          <div id="resource-popup" style="display:none; position:absolute; inset:0; background:rgba(0,0,0,0.85); z-index:100; flex-direction:column; justify-content:center; align-items:center; border-radius:15px; border:2px solid var(--gold-color);">
+                <h2 style="font-size: 1.2rem;">Collect Resource</h2>
+                <div class="control-row">
+                    <div class="btn-wrapper">
+                        <span class="btn-label">Gold</span>
+                        <div class="btn btn-gold" onclick="Game.handleResourceChoice('gold')"></div>
+                    </div>
+                    <div class="btn-wrapper">
+                        <span class="btn-label">Valuable</span>
+                        <div class="btn btn-valuable" onclick="Game.handleResourceChoice('valuable')"></div>
+                    </div>
+                </div>
           </div>
           <div class="btn-wrapper"><span class="btn-label">Battle</span><div class="btn btn-start" onclick="Game.startCombat()"></div></div>
           <div class="btn-wrapper"><span class="btn-label">Resource</span><div class="btn btn-resource" onclick="Game.handleResource()"></div></div>

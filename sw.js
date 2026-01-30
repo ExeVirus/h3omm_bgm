@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_0.9.14.0`
+const CACHE_NAME = `h3omm3_core_0.9.15.0`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -18,6 +18,7 @@ const CORE_ASSETS = [
     './assets/fortress.avif', './assets/stronghold.avif',
     './assets/conflux.avif', './assets/cove.avif',
     './assets/newday.avif', './assets/newtime.avif','./assets/tile.avif',
+    './assets/gold.avif', './assets/valuable.avif',
     './assets/start.avif', './assets/resource.avif', './assets/artifact.avif', 
     './assets/end_turn.avif', './assets/rules.avif', './assets/win_game.avif',
     './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif',
@@ -44,7 +45,7 @@ const CORE_ASSETS = [
 
     // --- AUDIO (TREASURE) ---
     './assets/treasure1.mp3', './assets/treasure2.mp3', './assets/treasure3.mp3', './assets/treasure4.mp3',
-    './assets/treasure5.mp3', './assets/treasure6.mp3', './assets/treasure7.mp3', './assets/treasure8.mp3',
+    './assets/treasure5.mp3', './assets/treasure6.mp3', './assets/treasure7.mp3', './assets/gold.mp3',
 
     // --- AUDIO (TERRAIN) ---
     './assets/dirt.mp3', './assets/grass.mp3', './assets/lava.mp3', './assets/rough.mp3',

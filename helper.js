@@ -31,6 +31,7 @@ const ASSET_QUEUE = [
     'assets/battle5.mp3', 'assets/battle6.mp3', 'assets/battle7.mp3', 'assets/battle8.mp3',
     'assets/combat1.mp3', 'assets/combat2.mp3', 'assets/combat3.mp3', 'assets/combat4.mp3',
     'assets/ai1.mp3', 'assets/ai2.mp3', 'assets/ai3.mp3',
+    'assets/gold.avif', 'assets/valuable.avif',
     'assets/artifact.mp3',
     'assets/newday.mp3', 'assets/newweek.mp3', 'assets/newmonth.mp3',
     'assets/win_battle.mp3', 
@@ -40,7 +41,7 @@ const ASSET_QUEUE = [
     // Treasure
     `assets/treasure1.mp3`, `assets/treasure2.mp3`, `assets/treasure3.mp3`,
     `assets/treasure4.mp3`, `assets/treasure5.mp3`, `assets/treasure6.mp3`,
-    `assets/treasure7.mp3`, `assets/treasure8.mp3`,
+    `assets/treasure7.mp3`, `assets/gold.mp3`,
 
     // Terrain
     `assets/dirt.mp3`, `assets/grass.mp3`, `assets/lava.mp3`,
@@ -460,14 +461,29 @@ const Game = {
     },
 
     handleResource() {
+        document.getElementById('resource-popup').style.display = 'flex';
+    },
+
+    handleResourceChoice(type) {
+        document.getElementById('resource-popup').style.display = 'none';
+
+        // Pause background
         this.audio.ch1.pause();
         this.audio.ch2.pause();
-        let introNum;
-        do {
-            introNum = Math.floor(Math.random() * 8) + 1;
-        } while (introNum === this.state.lastTreasureIdx && introNum !== 0);
-        this.state.lastTreasureIdx = introNum;
-        this.playSfx(`treasure${introNum}.mp3`, () => this.resumeBg());
+
+        if (type === 'gold') {
+            // Play specific gold sound
+            this.playSfx('gold.mp3', () => this.resumeBg());
+        } else {
+            // Play random treasure sound (1-7)
+            let introNum;
+            do {
+                introNum = Math.floor(Math.random() * 7) + 1;
+            } while (introNum === this.state.lastTreasureIdx);
+            
+            this.state.lastTreasureIdx = introNum;
+            this.playSfx(`treasure${introNum}.mp3`, () => this.resumeBg());
+        }
     },
 
     handleArtifact() {
