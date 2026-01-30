@@ -53,7 +53,7 @@ const ASSET_QUEUE = [
     'assets/inferno.avif', 'assets/dungeon.avif', 'assets/necropolis.avif',
     'assets/fortress.avif', 'assets/stronghold.avif',
     'assets/conflux.avif', 'assets/cove.avif',
-    'assets/newtime.avif','./assets/tile.avif',
+    'assets/newday.avif', 'assets/newtime.avif','./assets/tile.avif',
     'assets/start.avif', 'assets/resource.avif', 'assets/artifact.avif', 
     'assets/end_turn.avif', 'assets/rules.avif', 'assets/win_game.avif',
     'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif',
@@ -75,6 +75,7 @@ const Game = {
         lastBattleIdx: -1,
         lastCombatIdx: -1,
         lastTreasureIdx: -1,
+        musicTimer: null,
         currentOverworldName: null, // Holds 'castle', 'dirt', 'lava', etc.
         trackPositions: {},
         pendingGameOver: null,
@@ -96,6 +97,11 @@ const Game = {
     playBg(url, fade = true) {
         const fullUrl = url.includes('/') ? url : `assets/${url}`;
         if (this.audio.currentBgUrl === fullUrl) return;
+
+        if (this.state.musicTimer) {
+            clearTimeout(this.state.musicTimer);
+            this.state.musicTimer = null;
+        }
 
         if (this.audio.currentBgUrl) {
             const currentActiveChannel = this.audio[this.audio.activeChannel];
@@ -131,16 +137,20 @@ const Game = {
             this.audio.fadeInterval = setInterval(() => {
                 const step = 0.05;
                 let isDone = true;
-                const targetVol = this.audio.masterVolume;
+                const targetVol = this.audio.masterVolume; // Dynamic target
 
                 if (incoming.volume < targetVol) {
                     incoming.volume = Math.min(targetVol, incoming.volume + step);
                     isDone = false;
+                } else if (incoming.volume > targetVol) {
+                    incoming.volume = targetVol; // Clamp if user lowered slider mid-fade
                 }
+
                 if (outgoing.volume > 0) {
                     outgoing.volume = Math.max(0, outgoing.volume - step);
                     isDone = false;
                 }
+                
                 if (isDone) {
                     clearInterval(this.audio.fadeInterval);
                     this.audio.fadeInterval = null;
@@ -151,6 +161,11 @@ const Game = {
     },
 
     stopBg(hardStop = false) {
+        if (this.state.musicTimer) {
+            clearTimeout(this.state.musicTimer);
+            this.state.musicTimer = null;
+        }
+
         if (this.audio.fadeInterval) {
             clearInterval(this.audio.fadeInterval);
             this.audio.fadeInterval = null;
@@ -174,7 +189,6 @@ const Game = {
 
         this.audio.fadeInterval = setInterval(() => {
             let activeVol = false;
-            
             if (c1.volume > 0) {
                 c1.volume = Math.max(0, c1.volume - 0.1);
                 activeVol = true;
@@ -183,7 +197,6 @@ const Game = {
                 c2.volume = Math.max(0, c2.volume - 0.1);
                 activeVol = true;
             }
-
             if (!activeVol) {
                 clearInterval(this.audio.fadeInterval);
                 this.audio.fadeInterval = null;
@@ -226,8 +239,15 @@ const Game = {
     },
 
     setVolume(val) {
-        this.audio.masterVolume = parseFloat(val);
-        this.audio[this.audio.activeChannel].volume = this.audio.masterVolume;
+        const volume = parseFloat(val);
+        this.audio.masterVolume = volume;
+        this.audio.sfx.volume = volume;
+        // Update music channels
+        // If we are NOT fading, set them to master volume immediately.
+        if (!this.audio.fadeInterval) {
+            this.audio.ch1.volume = volume;
+            this.audio.ch2.volume = volume;
+        }
     },
 
     toggleMute() {
@@ -331,6 +351,10 @@ const Game = {
     },
 
     startTurn(isTransition = true, musicDelay = 0) {
+        if (this.state.musicTimer) {
+            clearTimeout(this.state.musicTimer);
+            this.state.musicTimer = null;
+        }
         const player = this.state.players[this.state.currentPlayerIndex];
         this.state.trackPositions = {};
 
@@ -403,14 +427,13 @@ const Game = {
     endTurn() {
         let nextIndex = this.state.currentPlayerIndex + 1;
         let nextRound = this.state.round;
-        let isSpecialEvent = false;
         let sfxToPlay = 'newday.mp3';
-        let overlayText = null;
+        let overlayText = "New Day";
+        let image = "url('assets/newday.avif')";
 
         if (nextIndex >= this.state.players.length) {
             nextIndex = 0;
             nextRound++;
-            isSpecialEvent = true;
             
             if (nextRound % 2 === 0) {
                 sfxToPlay = 'newmonth.mp3';
@@ -419,28 +442,21 @@ const Game = {
                 sfxToPlay = 'newweek.mp3';
                 overlayText = "Resource Round<br>(Event Round)";
             }
+            image = "url('assets/newtime.avif')";
         }
 
         this.stopBg(true);
 
-        if (isSpecialEvent) {
-            const ol = document.getElementById('event-overlay');
-            document.getElementById('event-text').innerHTML = overlayText;
-            ol.style.display = 'flex';
-
-            this.playSfx(sfxToPlay, () => {
-                document.getElementById('event-overlay').style.display = 'none';
-                this.state.currentPlayerIndex = nextIndex;
-                this.state.round = nextRound;
-                this.startTurn(true, 0);
-            });
-
-        } else {
-            this.playSfx(sfxToPlay);
+        const ol = document.getElementById('event-overlay');
+        ol.style.backgroundImage = image;
+        document.getElementById('event-text').innerHTML = overlayText;
+        ol.style.display = 'flex';
+        this.playSfx(sfxToPlay, () => {
+            document.getElementById('event-overlay').style.display = 'none';
             this.state.currentPlayerIndex = nextIndex;
             this.state.round = nextRound;
-            this.startTurn(true, 3000);
-        }
+            this.startTurn(true, 0);
+        });
     },
 
     handleResource() {
@@ -593,7 +609,7 @@ const Game = {
         this.showScreen('screen-win');
 
         if (loop) {
-            const active = this.audio.ch1; 
+            const active = this.audio.ch1;
             this.audio.activeChannel = 'ch1';
             active.src = audioUrl;
             active.loop = true;
