@@ -12,11 +12,10 @@ const FACTION_COLORS = {
     'neutral': '#333333' // Default
 };
 
-const TERRAIN_TRACKS = [
-    'assets/dirt.mp3', 'assets/grass.mp3', 'assets/highlands.mp3', 
-    'assets/lava.mp3', 'assets/rough.mp3', 'assets/sand.mp3', 
-    'assets/snow.mp3', 'assets/swamp.mp3', 'assets/underground.mp3', 
-    'assets/wasteland.mp3', 'assets/water.mp3'
+const TERRAIN = [
+    'assets/dirt', 'assets/grass', 'assets/lava', 'assets/rough',
+    'assets/sand', 'assets/snow', 'assets/swamp', 'assets/underground',
+    'assets/water'
 ];
 
 const ASSET_QUEUE = [
@@ -50,14 +49,12 @@ const ASSET_QUEUE = [
     // Terrain
     `assets/dirt.mp3`,
     `assets/grass.mp3`,
-    `assets/highlands.mp3`,
     `assets/lava.mp3`,
     `assets/rough.mp3`,
     `assets/sand.mp3`,
     `assets/snow.mp3`,
     `assets/swamp.mp3`,
     `assets/underground.mp3`,
-    `assets/wasteland.mp3`,
     `assets/water.mp3`,
 
     // 2. Images (AVIFs fetched after music starts loading)
@@ -84,7 +81,7 @@ const Game = {
         lastBattleIdx: -1,
         lastCombatIdx: -1,
         lastTreasureIdx: -1,
-        overworldTheme: 'town', // 'town' or 'tile'
+        overworldTheme: null,
         currentTerrainMusic: null, // Track the specific terrain for this turn
         lastTerrainMusic: null,    // Track the previous turn's terrain to avoid repeats
         trackPositions: {},
@@ -380,27 +377,21 @@ const Game = {
         const player = this.state.players[this.state.currentPlayerIndex];
         
         this.state.trackPositions = {};
-        const availableTerrains = TERRAIN_TRACKS.filter(t => t !== this.state.lastTerrainMusic);
-        const randomTerrain = availableTerrains[Math.floor(Math.random() * availableTerrains.length)];
-        this.state.currentTerrainMusic = randomTerrain;
-        this.state.lastTerrainMusic = randomTerrain;
-
-        // Reset to Town Theme for new turn
-        this.state.overworldTheme = 'town';
-        this.updateThemeButtonUI();
         
-        const overworldMusic = this.getCurrentOverworldMusic();
+        // Default to Town Theme on new turn
+        this.state.overworldTheme = `${player.faction}.mp3`;
+        
         document.getElementById('overworld-title').innerText = `${player.name}'s Turn`;
         document.getElementById('overworld-faction-subtitle').innerText = player.faction;
         this.updateFactionColor(player.faction);
         this.showScreen('screen-overworld');
         
         if (!isTransition) {
-            this.playBg(overworldMusic);
+            this.playBg(`assets/${this.state.overworldTheme}.mp3`);
         } else {
             setTimeout(() => {
                 if(this.state.currentScreen === 'screen-overworld') {
-                    this.playBg(overworldMusic);
+                    this.playBg(`assets/${this.state.overworldTheme}.mp3`);
                 }
             }, musicDelay);
         }
@@ -422,35 +413,32 @@ const Game = {
         return map[faction];
     },
 
-    toggleOverworldTheme() {
-        this.state.overworldTheme = (this.state.overworldTheme === 'town') ? 'tile' : 'town';
-        this.updateThemeButtonUI();
+    openThemeSelection() {
+        const player = this.state.players[this.state.currentPlayerIndex];
         
-        // Play the appropriate music immediately
-        const music = this.getCurrentOverworldMusic();
-        this.playBg(music);
+        // Set Faction Town
+        const townCont = document.getElementById('btn-theme-select-faction');
+        townCont.class = `btn btn-${player.faction}}`
+        townCont.onclick = Game.selectOverworldTheme(player.faction);
+        Game.updateThemeButtonUI()
+
+        this.showScreen('screen-theme-select');
+    },
+
+    selectOverworldTheme(theme) {
+        this.state.overworldTheme = theme;
+        this.playBg(`assets/${overworldTheme}.mp3`);
+        this.showScreen('screen-overworld');
     },
 
     updateThemeButtonUI() {
         const player = this.state.players[this.state.currentPlayerIndex];
         const btn = document.getElementById('btn-theme-toggle');
-        const label = document.getElementById('label-theme-toggle');
-        
-        if (this.state.overworldTheme === 'tile') {
-            label.innerText = "Town Theme";
-            btn.style.backgroundImage = `url('assets/${player.faction}.avif')`;
-        } else {
-            label.innerText = "Tile Theme";
-            btn.style.backgroundImage = `url('assets/tile.avif')`;
-        }
+        btn.class = `btn btn-${this.state.overworldTheme}`;
     },
 
     getCurrentOverworldMusic() {
-        if (this.state.overworldTheme === 'tile') {
-            return this.state.currentTerrainMusic; // Use the one selected at start of turn
-        }
-        const player = this.state.players[this.state.currentPlayerIndex];
-        return this.getFactionMusic(player.faction);
+        return `assets/${this.state.overworldTheme}.mp3`;
     },
 
     endTurn() {

@@ -408,6 +408,16 @@
     .btn-conflux { background-image: url('assets/conflux.avif'); }
     .btn-cove { background-image: url('assets/cove.avif'); }
 
+    .btn-dirt { background-image: url('assets/dirt.avif'); }
+    .btn-grass { background-image: url('assets/grass.avif'); }
+    .btn-lava { background-image: url('assets/lava.avif'); }
+    .btn-rough { background-image: url('assets/rough.avif'); }
+    .btn-sand { background-image: url('assets/sand.avif'); }
+    .btn-snow { background-image: url('assets/snow.avif'); }
+    .btn-swamp { background-image: url('assets/swamp.avif'); }
+    .btn-underground { background-image: url('assets/underground.avif'); }
+    .btn-water { background-image: url('assets/water.avif'); }
+
     .btn-start { background-image: url('assets/start.avif'); }
     .btn-resource { background-image: url('assets/resource.avif'); }
     .btn-artifact { background-image: url('assets/artifact.avif'); }
@@ -529,8 +539,8 @@
       <div class="horizontal-action-row">
           <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div></div>
           <div class="btn-wrapper">
-              <span class="btn-label" id="label-theme-toggle">Town Theme</span>
-              <div id="btn-theme-toggle" class="btn" onclick="Game.toggleOverworldTheme()"></div>
+            <span class="btn-label">Change Theme</span>
+            <div id="btn-theme-toggle" class="btn btn-castle" onclick="Game.openThemeSelection()"></div>
           </div>
       </div>
 
@@ -541,6 +551,33 @@
       </div>
     </div>
   </div>
+
+  <!-- SCREEN: Theme Selection -->
+    <div id="screen-theme-select" class="screen">
+        <h1>Select Theme</h1>
+        <div class="overworld-layout">
+            <!-- Row 1: Current Town -->
+            <div class="horizontal-action-row" style="margin-bottom: 10px;">
+                <div class="btn-wrapper"><span class="btn-label">Town Theme</span><div id="btn-theme-select-faction" class="btn btn-castle" onclick="Game.selectOverworldTheme('castle', 'town')"></div></div>
+            </div>
+            <!-- Rows 2-4: 3x3 Terrain Grid -->
+            <div class="horizontal-action-row">
+                <div class="btn-wrapper"><span class="btn-label">Dirt</span><div class="btn btn-dirt" onclick="Game.selectOverworldTheme('dirt', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Grass</span><div class="btn btn-grass" onclick="Game.selectOverworldTheme('grass', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Lava</span><div class="btn btn-lava" onclick="Game.selectOverworldTheme('lava', 'tile')"></div></div>
+            </div>
+            <div class="horizontal-action-row">
+                <div class="btn-wrapper"><span class="btn-label">Rough</span><div class="btn btn-rough" onclick="Game.selectOverworldTheme('rough', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Sand</span><div class="btn btn-sand" onclick="Game.selectOverworldTheme('sand', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Snow</span><div class="btn btn-snow" onclick="Game.selectOverworldTheme('snow', 'tile')"></div></div>
+            </div>
+            <div class="horizontal-action-row">
+                <div class="btn-wrapper"><span class="btn-label">Swamp</span><div class="btn btn-swamp" onclick="Game.selectOverworldTheme('swamp', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Underground</span><div class="btn btn-underground" onclick="Game.selectOverworldTheme('underground', 'tile')"></div></div>
+                <div class="btn-wrapper"><span class="btn-label">Water</span><div class="btn btn-water" onclick="Game.selectOverworldTheme('water', 'tile')"></div></div>
+            </div>
+        </div>
+    </div>
 
   <!-- SCREEN 5: Combat -->
   <div id="screen-combat" class="screen">

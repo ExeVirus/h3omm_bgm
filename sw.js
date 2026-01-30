@@ -21,6 +21,9 @@ const CORE_ASSETS = [
     './assets/start.avif', './assets/resource.avif', './assets/artifact.avif', 
     './assets/end_turn.avif', './assets/rules.avif', './assets/win_game.avif',
     './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif',
+    './assets/dirt.avif', './assets/grass.avif', './assets/lava.avif', './assets/rough.avif',
+    './assets/sand.avif', './assets/snow.avif', './assets/swamp.avif', './assets/underground.avif',
+    './assets/water.avif',
 
     // --- AUDIO (MUSIC) ---
     './assets/main.mp3',
@@ -44,9 +47,9 @@ const CORE_ASSETS = [
     './assets/treasure5.mp3', './assets/treasure6.mp3', './assets/treasure7.mp3', './assets/treasure8.mp3',
 
     // --- AUDIO (TERRAIN) ---
-    './assets/dirt.mp3', './assets/grass.mp3', './assets/highlands.mp3', './assets/lava.mp3',
-    './assets/rough.mp3', './assets/sand.mp3', './assets/snow.mp3', './assets/swamp.mp3',
-    './assets/underground.mp3', './assets/wasteland.mp3', './assets/water.mp3'
+    './assets/dirt.mp3', './assets/grass.mp3', './assets/lava.mp3', './assets/rough.mp3',
+    './assets/sand.mp3', './assets/snow.mp3', './assets/swamp.mp3', './assets/underground.mp3',
+    './assets/water.mp3'
 ];
 
 self.addEventListener('install', (e) => {
