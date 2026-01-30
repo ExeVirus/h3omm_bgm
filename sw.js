@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_0.9.10.1`
+const CACHE_NAME = `h3omm3_core_0.9.10.2`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
     './',
     './index.html',
     './manifest.json',
+    './favicon.ico',
     './helper.js',
     './192.png',
     './512.png',
