@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_1.1.1`
+const CACHE_NAME = `h3omm3_core_1.2.0`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -21,7 +21,7 @@ const CORE_ASSETS = [
     './assets/gold.avif', './assets/valuable.avif',
     './assets/start.avif', './assets/resource.avif', './assets/artifact.avif', 
     './assets/end_turn.avif', './assets/rules.avif', './assets/win_game.avif',
-    './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif', './assets/eliminated.avif',
+    './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif', './assets/surrender.avif', './assets/eliminated.avif',
     './assets/dirt.avif', './assets/grass.avif', './assets/lava.avif', './assets/rough.avif',
     './assets/sand.avif', './assets/snow.avif', './assets/swamp.avif', './assets/underground.avif',
     './assets/water.avif', './assets/wasteland.avif',
@@ -40,7 +40,7 @@ const CORE_ASSETS = [
     './assets/artifact.mp3',
     './assets/newday.mp3', './assets/newweek.mp3', './assets/newmonth.mp3',
     './assets/win_battle.mp3', 
-    './assets/experience.mp3', './assets/lose.mp3', './assets/retreat.mp3',
+    './assets/experience.mp3', './assets/lose.mp3', './assets/retreat.mp3', './assets/surrender.mp3',
     './assets/win_game.mp3', './assets/ultimatelose.mp3',
 
     // --- AUDIO (TREASURE) ---

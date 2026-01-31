@@ -269,6 +269,7 @@
     
     .btn-victory { background-image: url('assets/victory.avif'); }
     .btn-retreat { background-image: url('assets/retreat.avif'); }
+    .btn-surrender { background-image: url('assets/surrender.avif'); }
     .btn-lose { background-image: url('assets/lose.avif'); }
     
     .btn-confirm { background-color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
@@ -402,7 +403,7 @@
     </div>
   </div>
 
-  <!-- NEW SCREEN 4.5: Theme Selector -->
+  <!-- 4.5: Theme Selector -->
   <div id="screen-theme-select" class="screen">
       <h1>Select Theme</h1>
       
@@ -469,6 +470,7 @@
           <div class="btn-wrapper"><span class="btn-label">Win</span><div class="btn btn-victory" onclick="Game.combatVictory()"></div></div>
           <div class="btn-wrapper"><span class="btn-label">Retreat</span><div class="btn btn-retreat" onclick="Game.combatRetreat()"></div></div>
           <div class="btn-wrapper"><span class="btn-label">Lose</span><div class="btn btn-lose" onclick="Game.combatLose()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label">Surrender</span><div class="btn btn-surrender" onclick="Game.combatSurrender()"></div></div>
           <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div></div>
       </div>
     </div>

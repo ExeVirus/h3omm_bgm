@@ -36,7 +36,7 @@ const ASSET_QUEUE = [
     'assets/artifact.mp3',
     'assets/newday.mp3', 'assets/newweek.mp3', 'assets/newmonth.mp3',
     'assets/win_battle.mp3', 
-    'assets/experience.mp3', 'assets/lose.mp3', 'assets/retreat.mp3', 'assets/eliminated.avif',
+    'assets/experience.mp3', 'assets/lose.mp3', 'assets/retreat.mp3', 'assets/surrender.mp3',
     'assets/win_game.mp3', 'assets/ultimatelose.mp3',
 
     // Treasure
@@ -59,7 +59,7 @@ const ASSET_QUEUE = [
     'assets/newday.avif', 'assets/newtime.avif','./assets/tile.avif',
     'assets/start.avif', 'assets/resource.avif', 'assets/artifact.avif', 
     'assets/end_turn.avif', 'assets/rules.avif', 'assets/win_game.avif',
-    'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif',
+    'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif', 'assets/eliminated.avif', 'assets/surrender.avif',
     // Terrains
     'assets/dirt.avif', 'assets/grass.avif', 'assets/lava.avif', 'assets/rough.avif',
     'assets/sand.avif', 'assets/snow.avif', 'assets/swamp.avif', 'assets/underground.avif',
@@ -572,6 +572,12 @@ const Game = {
         this.stopBg();
         this.showCombatOverlay("Retreat", "assets/retreat.avif");
         this.playSfx('retreat.mp3', () => this.returnToOverworld());
+    },
+
+    combatSurrender() {
+        this.stopBg();
+        this.showCombatOverlay("Surrender", "assets/surrender.avif");
+        this.playSfx('surrender.mp3', () => this.returnToOverworld());
     },
 
     combatLose() {
