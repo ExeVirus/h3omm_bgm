@@ -314,7 +314,6 @@ const Game = {
 
     init() {
         document.getElementById('click-overlay').style.display = 'none';
-        Localization.init();
         this.playBg('assets/main.mp3');
         this.showScreen('screen-start');
         this.updateFactionColor('neutral');
@@ -762,5 +761,9 @@ const Game = {
         this.state.currentScreen = id;
     }
 };
+
+window.addEventListener('DOMContentLoaded', () => {
+    Localization.init();
+});
 
 window.Game = Game;
