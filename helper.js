@@ -66,6 +66,43 @@ const ASSET_QUEUE = [
     'assets/water.avif', 'assets/wasteland.avif'
 ];
 
+const Localization = {
+    lang: 'en', // Default
+
+    init() {
+        // Detect browser language (e.g., "en-US" -> "en")
+        const userLang = navigator.language || navigator.userLanguage; 
+        const shortLang = userLang.split('-')[0];
+        
+        if (TRANSLATIONS[shortLang]) {
+            this.lang = shortLang;
+        } else {
+            this.lang = 'en'; // Fallback
+        }
+        
+        this.localizePage();
+    },
+
+    // Get a string by key, optionally replacing placeholders {0}, {1}, etc.
+    get(key, ...args) {
+        let str = TRANSLATIONS[this.lang][key] || key;
+        args.forEach((arg, index) => {
+            str = str.replace(`{${index}}`, arg);
+        });
+        return str;
+    },
+
+    // Update all HTML elements with data-i18n attribute
+    localizePage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (TRANSLATIONS[this.lang][key]) {
+                el.innerHTML = TRANSLATIONS[this.lang][key];
+            }
+        });
+    }
+};
+
 const Game = {
     state: {
         currentScreen: 'screen-start',
@@ -277,6 +314,7 @@ const Game = {
 
     init() {
         document.getElementById('click-overlay').style.display = 'none';
+        Localization.init();
         this.playBg('assets/main.mp3');
         this.showScreen('screen-start');
         this.updateFactionColor('neutral');
@@ -306,7 +344,8 @@ const Game = {
             return;
         }
         
-        const defaultName = `Player ${playerIndex + 1}`;
+        const defaultName = Localization.get('default_player_name', playerIndex + 1);
+
         this.state.tempPlayerName = defaultName;
         document.getElementById('faction-player-title').innerText = defaultName;
         
@@ -361,7 +400,6 @@ const Game = {
         }
         const player = this.state.players[this.state.currentPlayerIndex];
         
-        // Safety check if current player is eliminated (should be handled in endTurn, but safe guard)
         if (player.eliminated) {
             this.endTurn();
             return;
@@ -371,8 +409,11 @@ const Game = {
         this.state.currentOverworldName = player.faction;
         
         // Update UI
-        document.getElementById('overworld-title').innerText = `${player.name}'s Turn`;
-        document.getElementById('overworld-faction-subtitle').innerText = player.faction;
+        document.getElementById('overworld-title').innerText = Localization.get('turn_title', player.name);
+        
+        const factionKey = `faction_${player.faction}`;
+        document.getElementById('overworld-faction-subtitle').innerText = Localization.get(factionKey);
+
         this.updateFactionColor(player.faction);
         this.updateThemeButtonUI();
         
@@ -395,14 +436,15 @@ const Game = {
         const player = this.state.players[this.state.currentPlayerIndex];
         const faction = player.faction;
 
-        // 1. Setup the Faction Button (Row 1)
         const factionBtn = document.getElementById('theme-faction-btn');
         const factionLabel = document.getElementById('theme-faction-label');
         
-        factionLabel.innerText = `${faction.charAt(0).toUpperCase() + faction.slice(1)} (Town)`;
+        const factionName = Localization.get(`faction_${faction}`);
+        const townLabel = Localization.get('btn_town');
+        factionLabel.innerText = `${factionName} (${townLabel})`;
+        
         factionBtn.style.backgroundImage = `url('assets/${faction}.avif')`;
         
-        // Remove old listener and add new specific one
         factionBtn.onclick = () => {
             this.applyThemeSelection(faction);
         };
@@ -474,17 +516,17 @@ const Game = {
             nextRound++;
         }
 
-        let sfxToPlay = 'newday.mp3';
-        let overlayText = "New Day";
+         let sfxToPlay = 'newday.mp3';
+        let overlayText = Localization.get('event_new_day');
         let image = "url('assets/newday.avif')";
 
         if (isNewRound) {
             if (nextRound % 2 === 0) {
                 sfxToPlay = 'newmonth.mp3';
-                overlayText = "Astrologers Proclaim!";
+                overlayText = Localization.get('event_astrologers');
             } else {
                 sfxToPlay = 'newweek.mp3';
-                overlayText = "Resource Round<br>(Event Round)";
+                overlayText = Localization.get('event_resource_round');
             }
             image = "url('assets/newtime.avif')";
         }
@@ -532,13 +574,13 @@ const Game = {
     askEliminate() {
         const player = this.state.players[this.state.currentPlayerIndex];
         this.state.pendingGameOver = 'eliminate';
-        document.getElementById('confirm-msg').innerText = `Eliminate ${player.name}?`;
+        document.getElementById('confirm-msg').innerText = Localization.get('msg_eliminate_confirm', player.name);
         document.getElementById('confirm-overlay').style.display = 'flex';
     },
 
     startCombat() {
         this.stopBg();
-        document.getElementById('combat-title').innerText = `${this.state.players[this.state.currentPlayerIndex].name}'s Combat`;
+        document.getElementById('combat-title').innerText = Localization.get('combat_title', this.state.players[this.state.currentPlayerIndex].name);
 
         let introNum;
         do {
@@ -564,25 +606,25 @@ const Game = {
 
     combatVictory() {
         this.stopBg();
-        this.showCombatOverlay("Victory", "assets/victory.avif");
+        this.showCombatOverlay(Localization.get('msg_victory'), "assets/victory.avif");
         this.playSfx('win_battle.mp3', () => this.returnToOverworld());
     },
 
     combatRetreat() {
         this.stopBg();
-        this.showCombatOverlay("Retreat", "assets/retreat.avif");
+        this.showCombatOverlay(Localization.get('msg_retreat'), "assets/retreat.avif");
         this.playSfx('retreat.mp3', () => this.returnToOverworld());
     },
 
     combatSurrender() {
         this.stopBg();
-        this.showCombatOverlay("Surrender", "assets/surrender.avif");
+        this.showCombatOverlay(Localization.get('msg_surrender'), "assets/surrender.avif");
         this.playSfx('surrender.mp3', () => this.returnToOverworld());
     },
 
     combatLose() {
         this.stopBg();
-        this.showCombatOverlay("Defeat", "assets/lose.avif");
+        this.showCombatOverlay(Localization.get('msg_defeat'), "assets/lose.avif");
         this.playSfx('lose.mp3', () => this.returnToOverworld());
     },
 
@@ -633,13 +675,13 @@ const Game = {
 
     winGame() {
         this.state.pendingGameOver = 'win';
-        document.getElementById('confirm-msg').innerText = "Proclaim Victory?";
+        document.getElementById('confirm-msg').innerText = Localization.get('msg_win_confirm');
         document.getElementById('confirm-overlay').style.display = 'flex';
     },
 
     loseGame() {
         this.state.pendingGameOver = 'lose';
-        document.getElementById('confirm-msg').innerText = "Really Lost Scenario?";
+        document.getElementById('confirm-msg').innerText = Localization.get('msg_lose_confirm');
         document.getElementById('confirm-overlay').style.display = 'flex';
     },
 
@@ -651,15 +693,15 @@ const Game = {
         if (isConfirmed) {
             if (action === 'win') {
                 const playerName = this.state.players[this.state.currentPlayerIndex].name;
-                this.finishGameSequence('assets/win_game.avif', `${playerName}'s Victory!`, 'assets/win_game.mp3', true);
+                this.finishGameSequence('assets/win_game.avif', Localization.get('msg_victory_title', playerName), 'assets/win_game.mp3', true);
             } else if (action === 'lose') {
-                this.finishGameSequence('assets/lose.avif', 'Defeat', 'assets/ultimatelose.mp3', false);
+                this.finishGameSequence('assets/lose.avif', Localization.get('msg_defeat'), 'assets/ultimatelose.mp3', false);
             } else if (action === 'eliminate') {
                 const player = this.state.players[this.state.currentPlayerIndex];
                 player.eliminated = true;
                 const activePlayers = this.state.players.filter(p => !p.eliminated);
                 if (activePlayers.length === 0) {
-                    this.finishGameSequence('assets/lose.avif', 'Defeat', 'assets/ultimatelose.mp3', false);
+                    this.finishGameSequence('assets/lose.avif', Localization.get('msg_defeat'), 'assets/ultimatelose.mp3', false);
                 } else {
                     this.endTurn();
                 }

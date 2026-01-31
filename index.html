@@ -168,7 +168,7 @@
         width: fit-content;
     }
 
-    /* Desktop Volume (omitted detailed style for brevity, same as previous) */
+    /* Desktop Volume */
     #desktop-volume-ctrl { position: fixed; right: 20px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 20px; background: rgba(0, 0, 0, 0.9); padding: 20px 10px; border: 2px solid #555; box-shadow: 0 0 0 2px #BF953F, 0 0 15px black; border-radius: 30px; z-index: 10001; width: 40px; }
     #mute-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; filter: drop-shadow(0 0 2px gold); }
     #mute-btn.is-muted { filter: grayscale(1); opacity: 0.7; }
@@ -206,18 +206,18 @@
     #click-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; cursor: pointer; }
 
     #event-overlay {
-        position: fixed;      /* Pulls it out of the quadrant to cover the WHOLE screen */
-        inset: 0;             /* Stretches to all 4 corners */
-        z-index: 9999;        /* Sits on top of all buttons */
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
         display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background-color: rgba(0,0,0,0.7); /* Blocks clicks & dims the background */
+        background-color: rgba(0,0,0,0.7); 
         background-image: url('assets/newtime.avif');
         background-repeat: no-repeat;
         background-position: center;
-        background-size: 300px 300px; /* Keeps the image height fixed at 300px */
+        background-size: 300px 300px; 
     }
     #event-text { font-size: 1.8rem; color: var(--gold-color); text-shadow: 3px 3px 0 #000; text-align: center; font-weight: bold; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; max-width: 90%; }
 
@@ -270,7 +270,7 @@
     .btn-victory { background-image: url('assets/victory.avif'); }
     .btn-retreat { background-image: url('assets/retreat.avif'); }
     .btn-surrender { background-image: url('assets/surrender.avif'); }
-    .btn-lose { background-image: url('assets/lose.avif'); }
+    .btn-lose { background-image: url('assets/eliminated.avif'); }
     
     .btn-confirm { background-color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
     .btn.disabled { filter: brightness(0.4); cursor: not-allowed; pointer-events: none; border-color: #333; }
@@ -286,31 +286,31 @@
   <div id="game-frame"></div>
 
   <div id="click-overlay" onclick="Game.init()">
-    <h1>H3 Board Game<br>Music Companion</h1>
-    <p style="color: #ccc;">Click to Setup</p>
+    <h1 data-i18n="app_title">H3 Board Game<br>Music Companion</h1>
+    <p style="color: #ccc;" data-i18n="click_setup">Click to Setup</p>
   </div>
 
   <!-- SCREEN 1: Theme -->
   <div id="screen-start" class="screen">
-    <h1>Select Mission Theme</h1>
+    <h1 data-i18n="screen_theme_title">Select Mission Theme</h1>
     <div class="grid-2x2">
-        <div class="btn-wrapper"><span class="btn-label">Good</span><div class="btn btn-good" onclick="Game.selectTheme('good')"></div></div>
-        <div class="btn-wrapper"><span class="btn-label">Evil</span><div class="btn btn-evil" onclick="Game.selectTheme('evil')"></div></div>
-        <div class="btn-wrapper"><span class="btn-label">Neutral</span><div class="btn btn-neutral" onclick="Game.selectTheme('neutral')"></div></div>
-        <div class="btn-wrapper"><span class="btn-label">Secret</span><div class="btn btn-secret" onclick="Game.selectTheme('secret')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_good">Good</span><div class="btn btn-good" onclick="Game.selectTheme('good')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_evil">Evil</span><div class="btn btn-evil" onclick="Game.selectTheme('evil')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_neutral">Neutral</span><div class="btn btn-neutral" onclick="Game.selectTheme('neutral')"></div></div>
+        <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_secret">Secret</span><div class="btn btn-secret" onclick="Game.selectTheme('secret')"></div></div>
     </div>
   </div>
 
   <!-- SCREEN 2: Player Count -->
   <div id="screen-players" class="screen">
-    <h1>Player Count</h1>
+    <h1 data-i18n="screen_players_title">Player Count</h1>
     <div class="counter-box">
         <div class="control-row">
             <button class="ctrl-btn" onclick="updateCount(-1)">-</button>
             <div id="p-count-display">3</div>
             <button class="ctrl-btn" onclick="updateCount(1)">+</button>
         </div>
-        <div class="btn-wrapper"><span class="btn-label">Confirm</span><div class="btn btn-confirm" onclick="Game.confirmPlayerCount(currentPlayerCount)">✅</div></div>
+        <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_confirm">Confirm</span><div class="btn btn-confirm" onclick="Game.confirmPlayerCount(currentPlayerCount)">✅</div></div>
     </div>
   </div>
 
@@ -323,32 +323,32 @@
     
     <div class="faction-container">
         <div class="faction-row">
-            <div class="btn-wrapper"><span class="btn-label">Castle</span><div class="btn btn-castle faction-btn" data-faction="castle"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Rampart</span><div class="btn btn-rampart faction-btn" data-faction="rampart"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Tower</span><div class="btn btn-tower faction-btn" data-faction="tower"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_castle">Castle</span><div class="btn btn-castle faction-btn" data-faction="castle"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_rampart">Rampart</span><div class="btn btn-rampart faction-btn" data-faction="rampart"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_tower">Tower</span><div class="btn btn-tower faction-btn" data-faction="tower"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn-wrapper"><span class="btn-label">Inferno</span><div class="btn btn-inferno faction-btn" data-faction="inferno"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Dungeon</span><div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Necropolis</span><div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_inferno">Inferno</span><div class="btn btn-inferno faction-btn" data-faction="inferno"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_dungeon">Dungeon</span><div class="btn btn-dungeon faction-btn" data-faction="dungeon"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_necropolis">Necropolis</span><div class="btn btn-necropolis faction-btn" data-faction="necropolis"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn-wrapper"><span class="btn-label">Fortress</span><div class="btn btn-fortress faction-btn" data-faction="fortress"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Stronghold</span><div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_fortress">Fortress</span><div class="btn btn-fortress faction-btn" data-faction="fortress"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_stronghold">Stronghold</span><div class="btn btn-stronghold faction-btn" data-faction="stronghold"></div></div>
         </div>
         <div class="faction-row">
-            <div class="btn-wrapper"><span class="btn-label">Conflux</span><div class="btn btn-conflux faction-btn" data-faction="conflux"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Cove</span><div class="btn btn-cove faction-btn" data-faction="cove"></div></div>
-            <div class="btn-wrapper"><span class="btn-label">Factory</span><div class="btn btn-factory faction-btn" data-faction="factory"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_conflux">Conflux</span><div class="btn btn-conflux faction-btn" data-faction="conflux"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_cove">Cove</span><div class="btn btn-cove faction-btn" data-faction="cove"></div></div>
+            <div class="btn-wrapper"><span class="btn-label" data-i18n="faction_factory">Factory</span><div class="btn btn-factory faction-btn" data-faction="factory"></div></div>
         </div>
     </div>
   </div>
 
   <!-- SCREEN 3.5: Pre-Game -->
   <div id="screen-pregame" class="screen">
-      <h1>Ready?</h1>
+      <h1 data-i18n="ready_title">Ready?</h1>
       <div class="btn-wrapper">
-          <span class="btn-label">Start Game</span>
+          <span class="btn-label" data-i18n="btn_start_game">Start Game</span>
           <div class="btn btn-start" style="transform: scale(1.5);" onclick="Game.startGame()"></div>
       </div>
   </div>
@@ -364,48 +364,48 @@
               <div id="event-text"></div>
           </div>
           <div id="resource-popup" style="display:none; position:absolute; inset:-25px; background:rgba(0,0,0,0.85); z-index:100; flex-direction:column; justify-content:center; align-items:center; border-radius:15px; border:2px solid var(--gold-color);">
-                <h2 style="font-size: 1.2rem;">Select Pickup</h2>
+                <h2 style="font-size: 1.2rem;" data-i18n="select_pickup_title">Select Pickup</h2>
                 <div class="control-row">
                     <div class="btn-wrapper">
-                        <span class="btn-label">Treasure</span>
+                        <span class="btn-label" data-i18n="btn_treasure">Treasure</span>
                         <div class="btn btn-gold" onclick="Game.handleResourceChoice('gold')"></div>
                     </div>
                     <div class="btn-wrapper">
-                        <span class="btn-label">Resource</span>
+                        <span class="btn-label" data-i18n="btn_resource">Resource</span>
                         <div class="btn btn-valuable" onclick="Game.handleResourceChoice('valuable')"></div>
                     </div>
                 </div>
                 <div class="btn-wrapper">
-                    <span class="btn-label">Artifact</span>
+                    <span class="btn-label" data-i18n="btn_artifact">Artifact</span>
                     <div class="btn btn-artifact" onclick="Game.handleResourceChoice('artifact')"></div>
                 </div>
           </div>
-          <div class="btn-wrapper"><span class="btn-label">Battle</span><div class="btn btn-start" onclick="Game.startCombat()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Pickup</span><div class="btn btn-resource" onclick="Game.handleResource()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Eliminate Player</span><div class="btn btn-eliminated" onclick="Game.askEliminate()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">End Turn</span><div class="btn btn-endturn" onclick="Game.endTurn()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_battle">Battle</span><div class="btn btn-start" onclick="Game.startCombat()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_pickup">Pickup</span><div class="btn btn-resource" onclick="Game.handleResource()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_eliminate">Eliminate Player</span><div class="btn btn-eliminated" onclick="Game.askEliminate()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_end_turn">End Turn</span><div class="btn btn-endturn" onclick="Game.endTurn()"></div></div>
       </div>
 
       <!-- Theme Button Updated -->
       <div class="horizontal-action-row">
-          <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_rules">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-overworld')"></div></div>
           <div class="btn-wrapper">
-              <span class="btn-label">Change Theme</span>
+              <span class="btn-label" data-i18n="btn_change_theme">Change Theme</span>
               <!-- Image will be updated via JS to match current theme -->
               <div id="btn-theme-toggle" class="btn" onclick="Game.openThemeSelector()"></div>
           </div>
       </div>
 
       <div class="horizontal-action-row">
-          <div class="btn-wrapper"><span class="btn-label">Win</span><div class="btn btn-wingame" onclick="Game.winGame()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Lose</span><div class="btn btn-losegame" onclick="Game.loseGame()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_win_scenario">Win Scenario</span><div class="btn btn-wingame" onclick="Game.winGame()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_lose_scenario">Lose Scenario</span><div class="btn btn-losegame" onclick="Game.loseGame()"></div></div>
       </div>
     </div>
   </div>
 
   <!-- 4.5: Theme Selector -->
   <div id="screen-theme-select" class="screen">
-      <h1>Select Theme</h1>
+      <h1 data-i18n="select_theme_title">Select Theme</h1>
       
       <!-- Row 1: Faction Town -->
       <div class="btn-wrapper">
@@ -415,26 +415,26 @@
 
       <!-- Rows 2-4: Terrains (Grid) -->
       <div class="grid-3col">
-          <div class="btn-wrapper"><span class="btn-label">Dirt</span><div class="btn btn-dirt" onclick="Game.applyThemeSelection('dirt')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Grass</span><div class="btn btn-grass" onclick="Game.applyThemeSelection('grass')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Lava</span><div class="btn btn-lava" onclick="Game.applyThemeSelection('lava')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_dirt">Dirt</span><div class="btn btn-dirt" onclick="Game.applyThemeSelection('dirt')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_grass">Grass</span><div class="btn btn-grass" onclick="Game.applyThemeSelection('grass')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_lava">Lava</span><div class="btn btn-lava" onclick="Game.applyThemeSelection('lava')"></div></div>
           
-          <div class="btn-wrapper"><span class="btn-label">Rough</span><div class="btn btn-rough" onclick="Game.applyThemeSelection('rough')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Sand</span><div class="btn btn-sand" onclick="Game.applyThemeSelection('sand')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Snow</span><div class="btn btn-snow" onclick="Game.applyThemeSelection('snow')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_rough">Rough</span><div class="btn btn-rough" onclick="Game.applyThemeSelection('rough')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_sand">Sand</span><div class="btn btn-sand" onclick="Game.applyThemeSelection('sand')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_snow">Snow</span><div class="btn btn-snow" onclick="Game.applyThemeSelection('snow')"></div></div>
           
-          <div class="btn-wrapper"><span class="btn-label">Swamp</span><div class="btn btn-swamp" onclick="Game.applyThemeSelection('swamp')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Underground</span><div class="btn btn-underground" onclick="Game.applyThemeSelection('underground')"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Water</span><div class="btn btn-water" onclick="Game.applyThemeSelection('water')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_swamp">Swamp</span><div class="btn btn-swamp" onclick="Game.applyThemeSelection('swamp')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_underground">Underground</span><div class="btn btn-underground" onclick="Game.applyThemeSelection('underground')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_water">Water</span><div class="btn btn-water" onclick="Game.applyThemeSelection('water')"></div></div>
 
           <div class="btn-wrapper"></div>
-          <div class="btn-wrapper"><span class="btn-label">Wasteland</span><div class="btn btn-wasteland" onclick="Game.applyThemeSelection('wasteland')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="terrain_wasteland">Wasteland</span><div class="btn btn-wasteland" onclick="Game.applyThemeSelection('wasteland')"></div></div>
       </div>
   </div>
 
   <!-- SCREEN 5: Combat -->
   <div id="screen-combat" class="screen">
-    <h1 id="combat-title">Player 1's Combat</h1>
+    <h1 id="combat-title" data-i18n="combat_title_generic">Combat</h1>
     
     <div style="position: relative;">
       <div id="combat-event-overlay" onclick="Game.returnToOverworld()" style="
@@ -467,40 +467,40 @@
       </div>
 
       <div class="grid-2x2">
-          <div class="btn-wrapper"><span class="btn-label">Win</span><div class="btn btn-victory" onclick="Game.combatVictory()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Retreat</span><div class="btn btn-retreat" onclick="Game.combatRetreat()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Lose</span><div class="btn btn-lose" onclick="Game.combatLose()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Surrender</span><div class="btn btn-surrender" onclick="Game.combatSurrender()"></div></div>
-          <div class="btn-wrapper"><span class="btn-label">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_win">Win</span><div class="btn btn-victory" onclick="Game.combatVictory()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_retreat">Retreat</span><div class="btn btn-retreat" onclick="Game.combatRetreat()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_lose">Lose</span><div class="btn btn-lose" onclick="Game.combatLose()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_surrender">Surrender</span><div class="btn btn-surrender" onclick="Game.combatSurrender()"></div></div>
+          <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_rules">Rules</span><div class="btn btn-rules" onclick="Game.showRules('screen-combat')"></div></div>
       </div>
     </div>
   </div>
 
   <!-- SCREEN 6: Rules -->
   <div id="screen-rules" class="screen">
-      <h1>Consulting Rules</h1>
-      <div class="btn-wrapper"><span class="btn-label">Back</span><div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div></div>
+      <h1 data-i18n="rules_title">Consulting Rules</h1>
+      <div class="btn-wrapper"><span class="btn-label" data-i18n="btn_back">Back</span><div class="btn btn-rules" style="transform: scale(1.5);" onclick="Game.exitRules()"></div></div>
   </div>
 
   <!-- SCREEN 7: Win/Lose Result -->
   <div id="screen-win" class="screen">
-      <h1 id="endgame-title">Victory!</h1>
+      <h1 id="endgame-title" data-i18n="victory_title">Victory!</h1>
       <div class="btn-wrapper">
-          <span class="btn-label">New Game</span>
+          <span class="btn-label" data-i18n="btn_new_game">New Game</span>
           <div id="win-theme-btn" class="btn" style="transform: scale(1.5);" onclick="Game.resetGame()"></div>
       </div>
   </div>
 
   <!-- Confirmation Overlay -->
   <div id="confirm-overlay" class="screen" style="display:none; position:fixed; background:rgba(0,0,0,0.9); z-index:10000; inset:0;">
-      <h1 id="confirm-msg">Are you sure?</h1>
+      <h1 id="confirm-msg" data-i18n="confirm_msg_default">Are you sure?</h1>
       <div class="control-row">
           <div class="btn-wrapper">
-              <span class="btn-label">Confirm</span>
+              <span class="btn-label" data-i18n="btn_confirm">Confirm</span>
               <div class="btn btn-confirm" onclick="Game.confirmAction(true)">✅</div>
           </div>
           <div class="btn-wrapper">
-              <span class="btn-label">Cancel</span>
+              <span class="btn-label" data-i18n="btn_cancel">Cancel</span>
               <div class="btn" style="background-color: #622127; display: flex; align-items: center; justify-content: center; font-size: 3rem;" onclick="Game.confirmAction(false)">❌</div>
           </div>
       </div>
@@ -514,6 +514,7 @@
       </div>
   </div>
 
+  <script src="locale.js"></script>
   <script src="helper.js"></script>
   <script>
     let currentPlayerCount = 3;

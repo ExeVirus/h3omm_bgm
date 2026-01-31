@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_1.2.0`
+const CACHE_NAME = `h3omm3_core_1.3.0`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -7,6 +7,7 @@ const CORE_ASSETS = [
     './index.html',
     './manifest.json',
     './favicon.ico',
+    './locale.js',
     './helper.js',
     './192.png',
     './512.png',
@@ -16,7 +17,7 @@ const CORE_ASSETS = [
     './assets/castle.avif', './assets/rampart.avif', './assets/tower.avif',
     './assets/inferno.avif', './assets/dungeon.avif', './assets/necropolis.avif',
     './assets/fortress.avif', './assets/stronghold.avif',
-    './assets/conflux.avif', './assets/cove.avif',
+    './assets/conflux.avif', './assets/cove.avif', './assets/factory.avif',
     './assets/newday.avif', './assets/newtime.avif','./assets/tile.avif',
     './assets/gold.avif', './assets/valuable.avif',
     './assets/start.avif', './assets/resource.avif', './assets/artifact.avif', 
@@ -32,7 +33,7 @@ const CORE_ASSETS = [
     './assets/castle.mp3', './assets/rampart.mp3', './assets/tower.mp3',
     './assets/inferno.mp3', './assets/dungeon.mp3', './assets/necropolis.mp3',
     './assets/fortress.mp3', './assets/stronghold.mp3',
-    './assets/conflux.mp3', './assets/cove.mp3',
+    './assets/conflux.mp3', './assets/cove.mp3', './assets/factory.mp3',
     './assets/battle1.mp3', './assets/battle2.mp3', './assets/battle3.mp3', './assets/battle4.mp3',
     './assets/battle5.mp3', './assets/battle6.mp3', './assets/battle7.mp3', './assets/battle8.mp3',
     './assets/combat1.mp3', './assets/combat2.mp3', './assets/combat3.mp3', './assets/combat4.mp3',
@@ -54,7 +55,6 @@ const CORE_ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-    // This phase is now "heavy". It will download ~50MB before completing.
     e.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             return cache.addAll(CORE_ASSETS);
@@ -66,9 +66,7 @@ self.addEventListener('install', (e) => {
 self.addEventListener('fetch', (e) => {
     e.respondWith(
         caches.match(e.request).then(response => {
-            // Hit? Return cache.
             if (response) return response;
-            // Miss? Fetch from network.
             return fetch(e.request);
         })
     );
@@ -78,7 +76,6 @@ self.addEventListener('activate', (e) => {
     e.waitUntil(
         caches.keys().then((keyList) => {
             return Promise.all(keyList.map((key) => {
-                // Delete any cache that doesn't match the current config version
                 if (key !== CACHE_NAME) {
                     console.log('Removing old cache', key);
                     return caches.delete(key);
