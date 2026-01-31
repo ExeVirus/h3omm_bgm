@@ -17,7 +17,7 @@ const FACTION_COLORS = {
 const TERRAIN_NAMES = [
     'dirt', 'grass', 'lava', 'rough',
     'sand', 'snow', 'swamp', 'underground',
-    'water'
+    'water', 'wasteland',
 ];
 
 const ASSET_QUEUE = [
@@ -48,6 +48,7 @@ const ASSET_QUEUE = [
     `assets/dirt.mp3`, `assets/grass.mp3`, `assets/lava.mp3`,
     `assets/rough.mp3`, `assets/sand.mp3`, `assets/snow.mp3`,
     `assets/swamp.mp3`, `assets/underground.mp3`, `assets/water.mp3`,
+    `assets/wasteland.mp3`,
 
     // 2. Images 
     'assets/good.avif', 'assets/evil.avif', 'assets/neutral.avif', 'assets/secret.avif',
@@ -62,7 +63,7 @@ const ASSET_QUEUE = [
     // Terrains
     'assets/dirt.avif', 'assets/grass.avif', 'assets/lava.avif', 'assets/rough.avif',
     'assets/sand.avif', 'assets/snow.avif', 'assets/swamp.avif', 'assets/underground.avif',
-    'assets/water.avif'
+    'assets/water.avif', 'assets/wasteland.avif'
 ];
 
 const Game = {

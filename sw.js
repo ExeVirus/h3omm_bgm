@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_1.1.0`
+const CACHE_NAME = `h3omm3_core_1.1.1`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -24,7 +24,7 @@ const CORE_ASSETS = [
     './assets/victory.avif', './assets/retreat.avif', './assets/lose.avif', './assets/eliminated.avif',
     './assets/dirt.avif', './assets/grass.avif', './assets/lava.avif', './assets/rough.avif',
     './assets/sand.avif', './assets/snow.avif', './assets/swamp.avif', './assets/underground.avif',
-    './assets/water.avif',
+    './assets/water.avif', './assets/wasteland.avif',
 
     // --- AUDIO (MUSIC) ---
     './assets/main.mp3',
@@ -50,7 +50,7 @@ const CORE_ASSETS = [
     // --- AUDIO (TERRAIN) ---
     './assets/dirt.mp3', './assets/grass.mp3', './assets/lava.mp3', './assets/rough.mp3',
     './assets/sand.mp3', './assets/snow.mp3', './assets/swamp.mp3', './assets/underground.mp3',
-    './assets/water.mp3'
+    './assets/water.mp3', './assets/wasteland.mp3'
 ];
 
 self.addEventListener('install', (e) => {
