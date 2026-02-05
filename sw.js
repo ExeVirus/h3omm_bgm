@@ -1,9 +1,8 @@
-const CACHE_NAME = `h3omm3_core_1.9.1`
+const CACHE_NAME = `h3omm3_core_1.9.2`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
     // --- CORE ---
-    './',
     'index.html',
     'manifest.json',
     'favicon.ico',
@@ -76,40 +75,79 @@ self.addEventListener('install', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
-    const url = new URL(e.request.url);
-
     e.respondWith(
         caches.match(e.request, { ignoreSearch: true }).then(cachedResponse => {
-            if (!cachedResponse) {
-                return fetch(e.request).then(networkResponse => {
-                    if (networkResponse && networkResponse.status === 200) {
-                        const responseToCache = networkResponse.clone();
-                        caches.open(CACHE_NAME).then(cache => {
-                            cache.put(e.request, responseToCache);
-                        });
-                    }
-                    return networkResponse;
-                });
-            }
-            const rangeHeader = e.request.headers.get('range');
-            if (rangeHeader && cachedResponse.headers.get('content-type')?.includes('audio')) {
-                return cachedResponse.arrayBuffer().then(buffer => {
-                    const bytes = rangeHeader.match(/bytes=(\d+)-(\d+)?/);
-                    const start = parseInt(bytes[1], 10);
-                    const end = bytes[2] ? parseInt(bytes[2], 10) : buffer.byteLength - 1;
+            if (cachedResponse) {
+                const rangeHeader = e.request.headers.get('range');
+                
+                // If there's no range header, just return the file
+                if (!rangeHeader) return cachedResponse;
 
-                    return new Response(buffer.slice(start, end + 1), {
+                // Handle Range Requests (Required for Mobile Audio)
+                return cachedResponse.arrayBuffer().then(buffer => {
+                    const start = Number(rangeHeader.replace(/\D/g, ''));
+                    const end = buffer.byteLength - 1;
+                    const slicedBuffer = buffer.slice(start, end + 1);
+
+                    return new Response(slicedBuffer, {
                         status: 206,
                         statusText: 'Partial Content',
                         headers: {
                             ...Object.fromEntries(cachedResponse.headers),
                             'Content-Range': `bytes ${start}-${end}/${buffer.byteLength}`,
-                            'Content-Length': end - start + 1,
+                            'Content-Length': slicedBuffer.byteLength,
                         }
                     });
+                }).catch(() => {
+                    // Fallback to full response if slicing fails
+                    return cachedResponse;
                 });
             }
-            return cachedResponse;
+            return fetch(e.request);
+        })
+    );
+});
+
+self.addEventListener('fetch', (e) => {
+    e.respondWith(
+        caches.match(e.request, { ignoreSearch: true }).then(cachedResponse => {
+            if (cachedResponse) {
+                const rangeHeader = e.request.headers.get('range');
+                if (rangeHeader && cachedResponse.headers.get('content-type')?.includes('audio')) {
+                    return cachedResponse.arrayBuffer().then(buffer => {
+                        const bytes = rangeHeader.match(/bytes=(\d+)-(\d+)?/);
+                        const start = parseInt(bytes[1], 10);
+                        const end = bytes[2] ? parseInt(bytes[2], 10) : buffer.byteLength - 1;
+
+                        return new Response(buffer.slice(start, end + 1), {
+                            status: 206,
+                            statusText: 'Partial Content',
+                            headers: {
+                                ...Object.fromEntries(cachedResponse.headers),
+                                'Content-Range': `bytes ${start}-${end}/${buffer.byteLength}`,
+                                'Content-Length': end - start + 1,
+                            }
+                        });
+                    });
+                }
+                return cachedResponse;
+            }
+            return fetch(e.request).then(networkResponse => {
+                if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+                    return networkResponse;
+                }
+                const responseToCache = networkResponse.clone();
+                caches.open(CACHE_NAME).then(cache => {
+                    cache.put(e.request, responseToCache);
+                });
+
+                return networkResponse;
+            }).catch(err => {
+                if (e.request.mode === 'navigate') {
+                    return caches.match('index.html');
+                }
+                console.log('Offline fetch failed:', e.request.url);
+            });
         })
     );
 });

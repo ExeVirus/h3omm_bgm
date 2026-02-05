@@ -56,7 +56,7 @@ const ASSET_QUEUE = [
     'assets/inferno.avif', 'assets/dungeon.avif', 'assets/necropolis.avif',
     'assets/fortress.avif', 'assets/stronghold.avif',
     'assets/conflux.avif', 'assets/cove.avif', 'assets/factory.avif',
-    'assets/newday.gif', 'assets/newtime.gif','./assets/tile.avif',
+    'assets/newday.gif', 'assets/newtime.gif','assets/tile.avif',
     'assets/start.avif', 'assets/resource.avif', 'assets/artifact.svg', 
     'assets/end_turn.avif', 'assets/rules.avif', 'assets/win_game.avif',
     'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif', 'assets/eliminated.avif', 'assets/surrender.avif',

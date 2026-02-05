@@ -1,7 +1,7 @@
 {
   "name": "HoMM3 BGM",
   "short_name": "H3 BGM",
-  "start_url": "./index.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#000000",
   "theme_color": "#000000",
