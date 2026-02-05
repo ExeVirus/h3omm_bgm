@@ -356,6 +356,27 @@
     .t-left { left: 50%; transform: translate(-150%, 50%); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .t-right { left: 50%; transform: translate(50%, 50%); background-size: contain; background-repeat: no-repeat; background-position: center; }
     .t-battle-bracket { position: absolute; left: 50%; width: 40px; border: 2px solid #a00; border-left: none; transform: translateX(0); z-index: 2; }
+
+    /* Specific layout for the Win/Loss screen */
+    .win-screen-layout {
+        display: none;
+        flex-direction: column !important;
+        padding-bottom: 20px !important;
+        height: 100vh;
+        box-sizing: border-box;
+    }
+
+    #endgame-title {
+        padding-top: 20px;
+    }
+
+    #endgame-video {
+        width: 100%;
+        max-height: 55vh; 
+        object-fit: contain;
+        margin-bottom: 10px;
+        pointer-events: none;
+    }
   </style>
 </head>
 <body>
@@ -519,20 +540,23 @@
     
     <div style="position: relative;">
       <div id="combat-event-overlay" onclick="Game.returnToOverworld()" style="
-        position: absolute;
-        inset: -10px;
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        width: auto !important;
+        height: auto !important;
         background-color: rgba(0,0,0,0.8);
         background-repeat: no-repeat;
         background-position: center;
-        background-size: cover;
+        background-size: contain;
         z-index: 900;
-        border-radius: 20px;
         box-shadow: 0 0 15px #000;
         display: none;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        border: 2px solid var(--gold-color);
         cursor: pointer; 
       ">
         <div id="combat-event-text" style="
@@ -564,17 +588,18 @@
   </div>
 
   <!-- SCREEN 7: Win/Lose Result -->
-  <div id="screen-win" class="screen">
+  <div id="screen-win" class="screen win-screen-layout">
       <h1 id="endgame-title" data-i18n="victory_title">Victory!</h1>
-      <div class="grid-2x2" style="justify-items: center;">
+      <video id="endgame-video" muted playsinline></video>
+      <div class="grid-2x2">
           <div class="btn-wrapper">
               <span class="btn-label" data-i18n="btn_new_game">New Game</span>
               <div id="win-theme-btn" class="btn" onclick="Game.resetGame()"></div>
           </div>
           <div class="btn-wrapper">
-             <span class="btn-label" data-i18n="btn_view_stats">Stats</span>
-             <div class="btn btn-resource" onclick="Game.showStats(Game.state.statsViewIndex)"></div>
-         </div>
+            <span class="btn-label" data-i18n="btn_view_stats">Stats</span>
+            <div class="btn btn-resource" onclick="Game.showStats(Game.state.statsViewIndex)"></div>
+        </div>
       </div>
   </div>
 

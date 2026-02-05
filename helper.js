@@ -50,7 +50,7 @@ const ASSET_QUEUE = [
     `assets/swamp.mp3`, `assets/underground.mp3`, `assets/water.mp3`,
     `assets/wasteland.mp3`,
 
-    // 2. Images 
+    // Images 
     'assets/good.avif', 'assets/evil.avif', 'assets/neutral.avif', 'assets/secret.avif',
     'assets/castle.avif', 'assets/rampart.avif', 'assets/tower.avif',
     'assets/inferno.avif', 'assets/dungeon.avif', 'assets/necropolis.avif',
@@ -60,6 +60,12 @@ const ASSET_QUEUE = [
     'assets/start.avif', 'assets/resource.avif', 'assets/artifact.svg', 
     'assets/end_turn.avif', 'assets/rules.avif', 'assets/win_game.avif',
     'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif', 'assets/eliminated.avif', 'assets/surrender.avif',
+    "assets/victory_animated.avif", "assets/retreat_animated.avif", "assets/surrender_animated.avif", "assets/eliminated_animated.avif",
+
+    // 'Videos'
+    "assets/victory.mkv",
+    "assets/defeat.mkv",
+
     // Terrains
     'assets/dirt.avif', 'assets/grass.avif', 'assets/lava.avif', 'assets/rough.avif',
     'assets/sand.avif', 'assets/snow.avif', 'assets/swamp.avif', 'assets/underground.avif',
@@ -912,19 +918,19 @@ const Game = {
     },
 
     combatVictory() {
-        this.finishCombat('win', Localization.get('msg_victory'), "assets/victory.avif", 'win_battle.mp3');
+        this.finishCombat('win', Localization.get('msg_victory'), "assets/victory_animated.avif", 'win_battle.mp3');
     },
 
     combatRetreat() {
-        this.finishCombat('retreat', Localization.get('msg_retreat'), "assets/retreat.avif", 'retreat.mp3');
+        this.finishCombat('retreat', Localization.get('msg_retreat'), "assets/retreat_animated.avif", 'retreat.mp3');
     },
 
     combatSurrender() {
-        this.finishCombat('surrender', Localization.get('msg_surrender'), "assets/surrender.avif", 'surrender.mp3');
+        this.finishCombat('surrender', Localization.get('msg_surrender'), "assets/surrender_animated.avif", 'surrender.mp3');
     },
 
     combatLose() {
-        this.finishCombat('loss', Localization.get('msg_defeat'), "assets/eliminated.avif", 'lose.mp3');
+        this.finishCombat('lose', Localization.get('msg_defeat'), "assets/eliminated_animated.avif", 'lose.mp3');
     },
 
     finishCombat(result, text, bgImageUrl, sfxFile) {
@@ -941,7 +947,10 @@ const Game = {
     showCombatOverlay(text, bgImageUrl) {
         document.getElementById('combat-title').innerText = text;
         const overlay = document.getElementById('combat-event-overlay');
-        overlay.style.backgroundImage = `url('${bgImageUrl}')`;
+        const uniqueUrl = `${bgImageUrl}?v=${Date.now()}`;
+        overlay.style.backgroundImage = 'none';
+        void overlay.offsetWidth;
+        overlay.style.backgroundImage = `url('${uniqueUrl}')`;
         overlay.style.display = 'flex';
         document.getElementById('combat-event-text').innerText = text;
     },
@@ -1055,6 +1064,16 @@ const Game = {
         
         const winBtn = document.getElementById('win-theme-btn');
         winBtn.style.backgroundImage = `url('${imgUrl}')`;
+
+        const videoEl = document.getElementById('endgame-video');
+        if (videoEl) {
+            const isWin = loop === true || (!titleText.toLowerCase().includes('defeat'));
+            videoEl.src = isWin ? 'assets/victory.mkv' : 'assets/defeat.mkv';
+            videoEl.load();
+            setTimeout(() => {
+                videoEl.play().catch(e => console.log("Autoplay blocked", e));
+            }, 50);
+        }
 
         this.showScreen('screen-win');
 
@@ -1287,6 +1306,13 @@ const Game = {
         this.audio.sfx.onerror = null;
         this.audio.currentBgUrl = null;
         this.state.trackPositions = {};
+
+        const videoEl = document.getElementById('endgame-video');
+        if (videoEl) {
+            videoEl.pause();
+            videoEl.src = "";
+            videoEl.load();
+        }
 
         document.getElementById('options-menu').style.display = ''; 
         const langMenu = document.getElementById('lang-submenu');

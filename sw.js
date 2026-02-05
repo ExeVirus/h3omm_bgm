@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_1.8.7`
+const CACHE_NAME = `h3omm3_core_1.9.0`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -26,6 +26,7 @@ const CORE_ASSETS = [
     'assets/dirt.avif', 'assets/grass.avif', 'assets/lava.avif', 'assets/rough.avif',
     'assets/sand.avif', 'assets/snow.avif', 'assets/swamp.avif', 'assets/underground.avif',
     'assets/water.avif', 'assets/wasteland.avif',
+    "assets/victory_animated.avif", "assets/retreat_animated.avif", "assets/surrender_animated.avif", "assets/eliminated_animated.avif",
 
     // --- AUDIO (MUSIC) ---
     'assets/main.mp3',
@@ -43,6 +44,10 @@ const CORE_ASSETS = [
     'assets/win_battle.mp3', 
     'assets/experience.mp3', 'assets/lose.mp3', 'assets/retreat.mp3', 'assets/surrender.mp3',
     'assets/win_game.mp3', 'assets/ultimatelose.mp3',
+
+     // 'Videos'
+    "assets/victory.mkv",
+    "assets/defeat.mkv",
 
     // --- AUDIO (TREASURE) ---
     'assets/treasure1.mp3', 'assets/treasure2.mp3', 'assets/treasure3.mp3', 'assets/treasure4.mp3',
