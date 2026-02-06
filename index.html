@@ -6,6 +6,7 @@
   <title>HoMM3 Companion</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;700&display=swap" rel="stylesheet">
   <script type="module" src="https://cdn.jsdelivr.net/npm/@pwabuilder/pwaupdate"></script>
   
   <style>
@@ -17,10 +18,18 @@
       --faction-color: #333; 
     }
 
+    @font-face {
+      font-family: 'EB Garamond';
+      src: url('assets/EBGaramond_Variable.ttf') format('truetype');
+      font-weight: 400 800;
+      font-display: swap;
+      font-style: normal;
+    }
+
     body {
       background-color: var(--bg-color);
       color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'EB Garamond', 'Nimbus Roman No9 L', 'Times New Roman', 'Segoe UI', serif;
       margin: 0;
       height: 100vh;
       width: 100vw;
@@ -82,7 +91,7 @@
     .faction-container { display: flex; flex-direction: column; gap: 8px; align-items: center; }
     .faction-row { display: flex; gap: 10px; justify-content: center; }
     .btn-wrapper { display: flex; flex-direction: column; align-items: center; width: var(--btn-size); }
-    .btn-label { font-size: 0.8rem; font-weight: bold; color: white; text-shadow: 1px 1px 2px black; margin-bottom: 4px; text-align: center; white-space: nowrap; overflow: visible; width: max-content; display: block; }
+    .btn-label { font-weight: bold; color: white; text-shadow: 1px 1px 2px black; margin-bottom: 4px; text-align: center; white-space: nowrap; overflow: visible; width: max-content; display: block; }
     .btn { width: 100%; height: var(--btn-size); border: 2px solid #555; border-radius: 15px; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #333; box-shadow: 0 5px 8px rgba(0,0,0,0.6); cursor: pointer; transition: transform 0.1s; }
     .btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
     #click-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; justify-content: center; align-items: center; flex-direction: column; cursor: pointer; }

@@ -62,6 +62,8 @@ const ASSET_QUEUE = [
     'assets/victory.avif', 'assets/retreat.avif', 'assets/lose.avif', 'assets/eliminated.avif', 'assets/surrender.avif',
     "assets/victory_animated.avif", "assets/retreat_animated.avif", "assets/surrender_animated.avif", "assets/eliminated_animated.avif",
 
+    'assets/EBGaramond_Variable.ttf',
+
     // 'Videos'
     "assets/victory.mkv",
     "assets/defeat.mkv",

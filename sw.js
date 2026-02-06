@@ -1,4 +1,4 @@
-const CACHE_NAME = `h3omm3_core_1.9.4`
+const CACHE_NAME = `h3omm3_core_1.10.0`
 
 // Core assets required for immediate UI rendering
 const CORE_ASSETS = [
@@ -10,6 +10,7 @@ const CORE_ASSETS = [
     'helper.js',
     '192.png',
     '512.png',
+    'assets/EBGaramond_Variable.ttf',
 
     // --- IMAGES ---
     'assets/good.avif', 'assets/evil.avif', 'assets/neutral.avif', 'assets/secret.avif',
