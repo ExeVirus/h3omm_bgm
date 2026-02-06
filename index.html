@@ -68,7 +68,7 @@
 
     h1, h2 {
       font-size: 1.8rem;
-      margin: 5px;
+      margin:  0 0 5px 0;
       color: var(--gold-color);
       text-transform: uppercase;
       text-shadow: 2px 2px 0px #000, 0 0 10px rgba(255, 215, 0, 0.5);
@@ -83,14 +83,14 @@
     .grid-3col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .grid-3col .btn { height: 100px; }
     .grid-3col .btn-wrapper { width: 100px; }
-    .horizontal-action-row { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: flex-start; gap: 15px; width: 100%; }
-    .overworld-layout { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100vw; }
+    .horizontal-action-row { display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; gap: 15px; width: 100%; }
+    .overworld-layout { display: flex; flex-direction: column; gap: 5px 15px; align-items: center; width: 100vw; }
     #overworld-faction-subtitle { font-size: 1.1rem; color: var(--faction-color); text-transform: uppercase; font-weight: bold; letter-spacing: 2px; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0px 0px 5px rgba(0,0,0,0.8); margin-top: -15px; margin-bottom: -5px; z-index: 10; }
     #overworld-title { margin-bottom: 10px; }
-    .grid-top-quadrant { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; position: relative; width: fit-content; }
+    .grid-top-quadrant { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px 15px; position: relative; width: fit-content; }
     .faction-container { display: flex; flex-direction: column; gap: 8px; align-items: center; }
     .faction-row { display: flex; gap: 10px; justify-content: center; }
-    .btn-wrapper { display: flex; flex-direction: column; align-items: center; width: var(--btn-size); }
+    .btn-wrapper { display: flex; flex-direction: column; align-items: center; width: var(--btn-size); justify-content: flex-end; }
     .btn-label { font-weight: bold; color: white; text-shadow: 1px 1px 2px black; margin-bottom: 4px; text-align: center; overflow: visible; display: block; }
     .btn { width: 100%; height: var(--btn-size); border: 2px solid #555; border-radius: 15px; background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #333; box-shadow: 0 5px 8px rgba(0,0,0,0.6); cursor: pointer; transition: transform 0.1s; }
     .btn:active { transform: scale(0.95); box-shadow: 0 2px 4px rgba(0,0,0,0.6); }
@@ -99,7 +99,7 @@
     #event-text { font-size: 1.8rem; color: var(--gold-color); text-shadow: 3px 3px 0 #000; text-align: center; font-weight: bold; background: rgba(0,0,0,0.6); padding: 10px; border-radius: 10px; max-width: 90%; }
     .counter-box { display: flex; flex-direction: column; align-items: center; gap: 15px; }
     #p-count-display { font-size: 4rem; font-weight: bold; color: white; }
-    .control-row { display: flex; gap: 20px; }
+    .control-row { display: flex; gap: 20px; align-items: center; }
     .ctrl-btn { font-size: 2rem; width: 60px; height: 60px; border-radius: 10px; background: #444; border: 1px solid gold; color: gold; }
     .btn-good { background-image: url('assets/good.avif'); }
     .btn-evil { background-image: url('assets/evil.avif'); }
