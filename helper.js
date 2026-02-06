@@ -788,7 +788,7 @@ const Game = {
         }
 
         if (!found) {
-            this.finishGameSequence('assets/lose.avif', 'Defeat', 'assets/ultimatelose.mp3', false);
+            this.finishGameSequence('assets/lose.avif', Localization.get('msg_defeat'), 'assets/ultimatelose.mp3', false);
             return;
         }
         
@@ -1067,7 +1067,7 @@ const Game = {
 
         const videoEl = document.getElementById('endgame-video');
         if (videoEl) {
-            const isWin = loop === true || (!titleText.toLowerCase().includes('defeat'));
+            const isWin = titleText != Localization.get('msg_defeat');
             videoEl.src = isWin ? 'assets/victory.mkv' : 'assets/defeat.mkv';
             videoEl.load();
             setTimeout(() => {
