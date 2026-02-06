@@ -6,7 +6,7 @@
 
 ## 🔨 To work on this locally:
 
-    1. Clone this repository or hit that "Code" buitton and then download .zip
+    1. Clone this repository or hit that "Code" button and then download .zip
     2. Once cloned/unzipped, open index.html in any browser and it's now all running locally.
 
 ## ❓ Q/A:
@@ -35,6 +35,10 @@
 > Way ahead of you, play normally and then check out the win/lose screen for the mission:
 
 ![Mission Stats and Timeline](demo.avif)
+
+### 7. Can you do more stats/analytics stuff?
+
+> Not likely, I give you the raw data export. I don't want to run a web server to get all your submissions, but I think if Archon made a proper, official companion like this, there would be a lot of benefit from having submissions with timelines and feedback and ratings on missions, campaigns, cards, etc.
 
 ## 🛡️ Other Community Projects
 
