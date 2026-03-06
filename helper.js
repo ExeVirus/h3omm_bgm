@@ -314,6 +314,7 @@ const Game = {
         const incoming = this.audio[nextChannelName];
 
         incoming.src = fullUrl;
+        incoming.load();
         const savedTime = this.state.trackPositions[fullUrl] || 0;
         incoming.currentTime = savedTime;
         incoming.loop = loop;
@@ -321,6 +322,12 @@ const Game = {
         incoming.muted = this.audio.isMuted;
         this.audio.currentBgUrl = fullUrl;
         this.audio.activeChannel = nextChannelName;
+
+        // IOS FIX, continue playing "silence, instead of stopping"
+        if ('mediaSession' in navigator) {
+            const trackName = url.split('/').pop().replace('.mp3', '');
+            this.updateMediaMetadata(trackName);
+        }
 
         const playPromise = incoming.play();
         if (playPromise) playPromise.catch(e => console.error("Audio Play Err:", e));
@@ -371,15 +378,26 @@ const Game = {
             this.state.trackPositions[this.audio.currentBgUrl] = this.audio[this.audio.activeChannel].currentTime;
         }
 
-        this.audio.currentBgUrl = null;
+        if (hardStop !== 'pause') {
+            this.audio.currentBgUrl = null;
+        }
+
         const c1 = this.audio.ch1;
         const c2 = this.audio.ch2;
 
         if (hardStop) {
             c1.pause();
             c2.pause();
-            c1.volume = 0;
-            c2.volume = 0;
+            
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = "paused";
+            }
+
+            // Only zero out volume if it's a true hard stop
+            if (hardStop !== 'pause') {
+                c1.volume = 0;
+                c2.volume = 0;
+            }
             return;
         }
 
@@ -398,6 +416,9 @@ const Game = {
                 this.audio.fadeInterval = null;
                 c1.pause();
                 c2.pause();
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.playbackState = "paused";
+                }
             }
         }, 50);
     },
@@ -472,6 +493,16 @@ const Game = {
         this.state.appLoadedAt = Date.now();
         this.state.lastTick = Date.now();
         this.state.timerMode = 'setup';
+
+        this.setupMediaSession();
+
+        // Support IOS aggressive shutdown
+        [this.audio.ch1, this.audio.ch2, this.audio.sfx].forEach(track => {
+            track.play().then(() => {
+                track.pause();
+                track.currentTime = 0;
+            }).catch(e => console.log("Priming hindered:", e));
+        });
 
         document.getElementById('click-overlay').style.display = 'none';
         this.playBg('assets/main.mp3');
@@ -580,7 +611,7 @@ const Game = {
         const nextUrl = `assets/${nextTheme}.mp3`;
         this.state.trackPositions[nextUrl] = 0;
 
-        this.playBg(nextUrl, true, false); 
+        this.playBg(nextUrl, true, false);
     },
 
     updateFactionColor(faction) {
@@ -1485,7 +1516,43 @@ const Game = {
 
     hideTimeline() {
         document.getElementById('timeline-overlay').style.display = 'none';
-    }
+    },
+
+    setupMediaSession() {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.setActionHandler('play', () => {
+                this.resumeBg();
+                navigator.mediaSession.playbackState = "playing";
+            });
+            navigator.mediaSession.setActionHandler('pause', () => this.stopBg('pause'));
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                if (this.state.currentScreen === 'screen-overworld') this.handleAudioEnd();
+            });
+
+            // Volume handlers
+            [['volumeup', 0.1], ['volumedown', -0.1]].forEach(([action, change]) => {
+                try {
+                    navigator.mediaSession.setActionHandler(action, () => {
+                        const current = parseFloat(this.audio.masterVolume);
+                        const newVol = Math.min(1, Math.max(0, current + change));
+                        this.setVolume(newVol);
+                    });
+                } catch (e) {}
+            });
+        }
+    },
+
+    updateMediaMetadata(title, artist = "HoMM3 Companion") {
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: title,
+                artist: artist,
+                artwork: [
+                    { src: 'assets/good.avif', sizes: '512x512', type: 'image/avif' }
+                ]
+            });
+        }
+    },
 };
 
 window.addEventListener('beforeinstallprompt', (e) => {
