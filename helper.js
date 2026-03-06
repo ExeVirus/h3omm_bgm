@@ -463,8 +463,8 @@ const Game = {
                 }
             }
             
-            // If loops too long (> 1.5s), force kill
-            if (!activeVol || safetyCounter > 30) {
+            // If loops too long (> 0.5s), force kill
+            if (!activeVol || safetyCounter > 10) {
                 clearInterval(this.audio.fadeInterval);
                 this.audio.fadeInterval = null;
                 c1.pause();
