@@ -318,12 +318,15 @@ const Game = {
         const savedTime = this.state.trackPositions[fullUrl] || 0;
         incoming.currentTime = savedTime;
         incoming.loop = loop;
-        incoming.volume = 0;
         incoming.muted = this.audio.isMuted;
+        
+        // iOS: Initialize at target volume immediately in case volume prop is locked
+        // If fade works, we set it to 0 momentarily.
+        incoming.volume = this.audio.masterVolume;
+        
         this.audio.currentBgUrl = fullUrl;
         this.audio.activeChannel = nextChannelName;
 
-        // IOS FIX, continue playing "silence, instead of stopping"
         if ('mediaSession' in navigator) {
             const trackName = url.split('/').pop().replace('.mp3', '');
             this.updateMediaMetadata(trackName);
@@ -337,27 +340,57 @@ const Game = {
             outgoing.pause();
             outgoing.volume = 0;
         } else {
+            // Set start volume for fade
+            incoming.volume = 0;
+            
+            let safetyCounter = 0; // Prevent infinite loops
+
             this.audio.fadeInterval = setInterval(() => {
                 const step = 0.05;
-                let isDone = true;
                 const targetVol = this.audio.masterVolume;
+                let incomingDone = false;
+                let outgoingDone = false;
+                safetyCounter++;
 
+                // 1. Fade Incoming
                 if (incoming.volume < targetVol) {
+                    const prevIn = incoming.volume;
                     incoming.volume = Math.min(targetVol, incoming.volume + step);
-                    isDone = false;
-                } else if (incoming.volume > targetVol) {
-                    incoming.volume = targetVol;
+                    
+                    // iOS Check: If volume didn't change, we can't fade.
+                    if (incoming.volume === prevIn) {
+                        incoming.volume = targetVol; // Force max
+                        incomingDone = true;
+                    }
+                } else {
+                    incomingDone = true;
                 }
 
-                if (outgoing.volume > 0) {
+                // 2. Fade Outgoing
+                if (outgoing.volume > 0 && !outgoing.paused) {
+                    const prevOut = outgoing.volume;
                     outgoing.volume = Math.max(0, outgoing.volume - step);
-                    isDone = false;
+                    
+                    // iOS Check: If volume didn't drop, force stop immediately
+                    if (outgoing.volume === prevOut) {
+                        outgoing.pause();
+                        outgoing.volume = 0; // Try to set 0, but it might fail silently
+                        outgoingDone = true;
+                    }
+                } else {
+                    outgoingDone = true;
                 }
-                
-                if (isDone) {
+
+                // 3. Cleanup logic
+                // If safety counter hits ~40 (2 seconds), force stop to prevent overlap
+                if ((incomingDone && outgoingDone) || safetyCounter > 40) {
                     clearInterval(this.audio.fadeInterval);
                     this.audio.fadeInterval = null;
                     outgoing.pause();
+                    
+                    // Ensure final states
+                    incoming.volume = targetVol;
+                    if (outgoing.volume > 0) outgoing.volume = 0;
                 }
             }, 50);
         }
@@ -393,7 +426,6 @@ const Game = {
                 navigator.mediaSession.playbackState = "paused";
             }
 
-            // Only zero out volume if it's a true hard stop
             if (hardStop !== 'pause') {
                 c1.volume = 0;
                 c2.volume = 0;
@@ -401,17 +433,38 @@ const Game = {
             return;
         }
 
+        // Faded Stop
+        let safetyCounter = 0;
         this.audio.fadeInterval = setInterval(() => {
             let activeVol = false;
-            if (c1.volume > 0) {
+            safetyCounter++;
+
+            // Fade Channel 1
+            if (c1.volume > 0 && !c1.paused) {
+                const prev = c1.volume;
                 c1.volume = Math.max(0, c1.volume - 0.1);
-                activeVol = true;
+                // iOS check
+                if (c1.volume === prev) {
+                    c1.pause(); 
+                } else {
+                    activeVol = true;
+                }
             }
-            if (c2.volume > 0) {
+
+            // Fade Channel 2
+            if (c2.volume > 0 && !c2.paused) {
+                const prev = c2.volume;
                 c2.volume = Math.max(0, c2.volume - 0.1);
-                activeVol = true;
+                // iOS check
+                if (c2.volume === prev) {
+                    c2.pause();
+                } else {
+                    activeVol = true;
+                }
             }
-            if (!activeVol) {
+            
+            // If loops too long (> 1.5s), force kill
+            if (!activeVol || safetyCounter > 30) {
                 clearInterval(this.audio.fadeInterval);
                 this.audio.fadeInterval = null;
                 c1.pause();
@@ -1544,11 +1597,14 @@ const Game = {
 
     updateMediaMetadata(title, artist = "HoMM3 Companion") {
         if ('mediaSession' in navigator) {
+            const potentialImage = `assets/${title}.avif`;
+            const hasImage = ASSET_QUEUE.includes(potentialImage);
+            const finalImage = hasImage ? potentialImage : 'assets/good.avif';
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: title,
+                title: title, // You might want to capitalize this for display (e.g., 'Castle' vs 'castle')
                 artist: artist,
                 artwork: [
-                    { src: 'assets/good.avif', sizes: '512x512', type: 'image/avif' }
+                    { src: finalImage, sizes: '512x512', type: 'image/avif' }
                 ]
             });
         }
