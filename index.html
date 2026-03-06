@@ -31,7 +31,11 @@
       color: white;
       font-family: 'EB Garamond', 'Nimbus Roman No9 L', 'Times New Roman', 'Segoe UI', serif;
       margin: 0;
-      height: 100vh;
+      height: 100vh; /* Fallback for older browsers */
+      height: 100dvh; /* Dynamic height ignores the iOS address bar area */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+      box-sizing: border-box;
       width: 100vw;
       overflow: hidden;
       display: flex;
@@ -63,7 +67,7 @@
       height: 100%;
       gap: 15px;
       box-sizing: border-box;
-      padding: 30px; 
+      padding: 20px; 
     }
 
     h1, h2 {

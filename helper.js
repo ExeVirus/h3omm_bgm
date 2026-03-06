@@ -1595,13 +1595,60 @@ const Game = {
         }
     },
 
+    getLocalizedTrackName(trackId) {
+        const MUSIC_TRANSLATION_MAP = {
+            // Themes
+            'good': 'btn_good',
+            'evil': 'btn_evil',
+            'neutral': 'btn_neutral',
+            'secret': 'btn_secret',
+            
+            // Factions
+            'castle': 'faction_castle',
+            'rampart': 'faction_rampart',
+            'tower': 'faction_tower',
+            'inferno': 'faction_inferno',
+            'dungeon': 'faction_dungeon',
+            'necropolis': 'faction_necropolis',
+            'fortress': 'faction_fortress',
+            'stronghold': 'faction_stronghold',
+            'conflux': 'faction_conflux',
+            'cove': 'faction_cove',
+            'factory': 'faction_factory',
+
+            // Terrains
+            'dirt': 'terrain_dirt',
+            'grass': 'terrain_grass',
+            'lava': 'terrain_lava',
+            'rough': 'terrain_rough',
+            'sand': 'terrain_sand',
+            'snow': 'terrain_snow',
+            'swamp': 'terrain_swamp',
+            'underground': 'terrain_underground',
+            'water': 'terrain_water',
+            'wasteland': 'terrain_wasteland',
+
+            // Game States
+            'combat': 'combat_title_generic',
+            'win': 'victory_title',
+            'lose': 'btn_lose_scenario'
+        };
+        const key = MUSIC_TRANSLATION_MAP[trackId];
+        if (key && Localization.get(key)) {
+            return Localization.get(key);
+        }
+        console.error("No localization found for BG music track name: " + trackId)
+        // Fallback: Capitalize the ID if no translation found (e.g. "Castle")
+        return trackId.charAt(0).toUpperCase() + trackId.slice(1);
+    },
+
     updateMediaMetadata(title, artist = "HoMM3 Companion") {
         if ('mediaSession' in navigator) {
             const potentialImage = `assets/${title}.avif`;
             const hasImage = ASSET_QUEUE.includes(potentialImage);
             const finalImage = hasImage ? potentialImage : 'assets/good.avif';
             navigator.mediaSession.metadata = new MediaMetadata({
-                title: title, // You might want to capitalize this for display (e.g., 'Castle' vs 'castle')
+                title: this.getLocalizedTrackName(title), // You might want to capitalize this for display (e.g., 'Castle' vs 'castle')
                 artist: artist,
                 artwork: [
                     { src: finalImage, sizes: '512x512', type: 'image/avif' }
