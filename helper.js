@@ -206,7 +206,8 @@ const Game = {
         trackPositions: {},
         pendingGameOver: null,
         tempPlayerName: "",
-        isAutoplay: true,
+        musicMode: 'auto',
+        isManualThemePlaying: false,
         lastTerrain: null,
         statsViewIndex: 0,
         
@@ -234,7 +235,8 @@ const Game = {
         currentBgUrl: null,
         fadeInterval: null,
         masterVolume: 1.0,
-        isMuted: false
+        isMuted: false,
+        isPrimed: false
     },
 
     // --- LOGGING ENGINE ---
@@ -292,7 +294,7 @@ const Game = {
     // --- AUDIO ENGINE ---
     playBg(url, fade = true, loop = true) {
         const fullUrl = url.includes('/') ? url : `assets/${url}`;
-        if (this.audio.currentBgUrl === fullUrl && !this.state.isAutoplay) return;
+        if (this.audio.currentBgUrl === fullUrl && this.state.musicMode !== 'auto') return;
 
         if (this.state.musicTimer) {
             clearTimeout(this.state.musicTimer);
@@ -550,12 +552,15 @@ const Game = {
         this.setupMediaSession();
 
         // Support IOS aggressive shutdown
-        [this.audio.ch1, this.audio.ch2, this.audio.sfx].forEach(track => {
-            track.play().then(() => {
-                track.pause();
-                track.currentTime = 0;
-            }).catch(e => console.log("Priming hindered:", e));
-        });
+        if (!this.audio.isPrimed) {
+            [this.audio.ch1, this.audio.ch2, this.audio.sfx].forEach(track => {
+                track.play().then(() => {
+                    track.pause();
+                    track.currentTime = 0;
+                }).catch(e => console.log("Priming hindered:", e));
+            });
+            this.audio.isPrimed = true;
+        }
 
         document.getElementById('click-overlay').style.display = 'none';
         this.playBg('assets/main.mp3');
@@ -565,6 +570,12 @@ const Game = {
 
         this.audio.ch1.onended = () => this.handleAudioEnd();
         this.audio.ch2.onended = () => this.handleAudioEnd();
+
+        const savedMode = localStorage.getItem('h3_musicMode');
+        this.state.musicMode = savedMode || 'auto';
+        
+        const musicModeSelect = document.getElementById('music-mode-select');
+        if (musicModeSelect) musicModeSelect.value = this.state.musicMode;
     },
 
     updatePWAButtons() {
@@ -616,29 +627,29 @@ const Game = {
         submenu.style.display = isHidden ? 'grid' : 'none';
     },
 
-    toggleAutoplay() {
-        this.state.isAutoplay = !this.state.isAutoplay;
-        const btn = document.getElementById('autoplay-toggle');
+    setMusicMode(mode) {
+        this.state.musicMode = mode;
+        localStorage.setItem('h3_musicMode', mode);
         
-        if (this.state.isAutoplay) {
-            btn.classList.add('active');
-            if (this.state.currentScreen === 'screen-overworld') {
+        if (this.state.currentScreen === 'screen-overworld') {
+            if (mode === 'none') {
+                this.state.isManualThemePlaying = false;
+                this.stopBg(true);
+            } else {
+                const shouldLoop = (mode === 'loop');
                 const active = this.audio[this.audio.activeChannel];
-                if (active && active.loop) {
-                   this.playBg(this.getCurrentOverworldMusic(), true, false); 
+                if (!this.audio.currentBgUrl || active.paused) {
+                    this.playBg(this.getCurrentOverworldMusic(), true, shouldLoop);
+                } else {
+                    active.loop = shouldLoop;
                 }
             }
-        } else {
-            btn.classList.remove('active');
-            if (this.state.currentScreen === 'screen-overworld') {
-                const active = this.audio[this.audio.activeChannel];
-                if (active) active.loop = true;
-            }
+            this.updateThemeButtonUI();
         }
     },
 
     handleAudioEnd() {
-        if (!this.state.isAutoplay) return;
+        if (this.state.musicMode !== 'auto') return;
         if (this.state.currentScreen !== 'screen-overworld') return;
 
         const player = this.state.players[this.state.currentPlayerIndex];
@@ -773,20 +784,27 @@ const Game = {
         this.showScreen('screen-overworld');
         
         const overworldMusic = `assets/${this.state.currentOverworldName}.mp3`;
-        const shouldLoop = !this.state.isAutoplay;
+        const shouldLoop = this.state.musicMode === 'loop';
 
-        if (this.state.isAutoplay) {
+        if (this.state.musicMode === 'auto') {
              this.state.trackPositions[overworldMusic] = 0;
         }
 
-        if (!isTransition) {
-            this.playBg(overworldMusic, true, shouldLoop);
+        this.state.isManualThemePlaying = false;
+        this.updateThemeButtonUI();
+
+        if (this.state.musicMode !== 'none') {
+            if (!isTransition) {
+                this.playBg(overworldMusic, true, shouldLoop);
+            } else {
+                setTimeout(() => {
+                    if(this.state.currentScreen === 'screen-overworld') {
+                        this.playBg(overworldMusic, true, shouldLoop);
+                    }
+                }, musicDelay);
+            }
         } else {
-            setTimeout(() => {
-                if(this.state.currentScreen === 'screen-overworld') {
-                    this.playBg(overworldMusic, true, shouldLoop);
-                }
-            }, musicDelay);
+            this.stopBg(true);
         }
     },
 
@@ -811,12 +829,13 @@ const Game = {
 
     applyThemeSelection(themeName) {
         this.state.currentOverworldName = themeName;
+        this.state.isManualThemePlaying = true;
         this.updateThemeButtonUI();
         
-        const shouldLoop = !this.state.isAutoplay;
+        const shouldLoop = this.state.musicMode === 'loop';
         const url = `assets/${themeName}.mp3`;
         
-        if (this.state.isAutoplay) {
+        if (this.state.musicMode === 'auto') {
              this.state.trackPositions[url] = 0;
         }
 
@@ -828,6 +847,13 @@ const Game = {
         const btn = document.getElementById('btn-theme-toggle');
         const currentName = this.state.currentOverworldName;
         btn.style.backgroundImage = `url('assets/${currentName}.avif')`;
+
+        const isSilenced = this.state.musicMode === 'none' && !this.state.isManualThemePlaying;
+        if (isSilenced) {
+            btn.classList.add('no-music');
+        } else {
+            btn.classList.remove('no-music');
+        }
     },
 
     getCurrentOverworldMusic() {
@@ -1052,9 +1078,16 @@ const Game = {
         this.audio.sfx.onended = null;
         this.hideCombatOverlay();
         this.showScreen('screen-overworld');
-        
-        const shouldLoop = !this.state.isAutoplay;
-        this.playBg(this.getCurrentOverworldMusic(), true, shouldLoop);
+
+        this.state.isManualThemePlaying = false;
+        this.updateThemeButtonUI();
+
+        if (this.state.musicMode !== 'none') {
+            const shouldLoop = this.state.musicMode === 'loop';
+            this.playBg(this.getCurrentOverworldMusic(), true, shouldLoop);
+        } else {
+            this.stopBg(true);
+        }
     },
 
     showRules(fromScreen) {
@@ -1084,8 +1117,12 @@ const Game = {
         this.setTimerMode(this.state.previousTimerMode);
         this.showScreen(this.state.previousScreen);
         if (this.state.currentScreen === 'screen-overworld') {
-            const shouldLoop = !this.state.isAutoplay;
-            this.playBg(this.getCurrentOverworldMusic(), true, shouldLoop);
+            if (this.state.musicMode !== 'none' || this.state.isManualThemePlaying) {
+                const shouldLoop = this.state.musicMode === 'loop';
+                this.playBg(this.getCurrentOverworldMusic(), true, shouldLoop);
+            } else {
+                this.stopBg(true);
+            }
         } else if (this.state.previousMusic) {
             this.playBg(this.state.previousMusic);
         }
